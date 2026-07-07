@@ -1,11 +1,12 @@
 /* =========================================================
    QERP - Estilos base
-   Paleta: alineada a la identidad de CUSOL (índigo + violeta + navy oscuro)
-   Tipografía: Manrope (display) + Inter (texto/datos)
+   Paleta e identidad alineadas a cusol.com.ar: índigo + navy oscuro,
+   tipografía del sistema operativo (no Google Fonts), espaciado
+   generoso y líneas finas en vez de bordes pesados.
    ========================================================= */
 
 :root {
-  --bg: #F5F5F8;
+  --bg: #F7F7FA;
   --surface: #FFFFFF;
   --ink: #0E0F1C;
   --muted: #6B6C80;
@@ -26,9 +27,14 @@
   --warning: #B45309;
   --warning-light: #FEF3E2;
 
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
   --radius: 8px;
-  --shadow-sm: 0 1px 2px rgba(16, 24, 38, 0.06);
-  --shadow-md: 0 4px 16px rgba(16, 24, 38, 0.08);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 2px rgba(14, 15, 28, 0.04), 0 8px 24px -12px rgba(14, 15, 28, 0.10);
+  --shadow-md: 0 4px 16px rgba(16, 24, 38, 0.10);
 
   --sidebar-w: 248px;
   --header-h: 64px;
@@ -44,14 +50,16 @@ html, body {
   padding: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font);
   font-size: 14px;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4 {
-  font-family: 'Manrope', 'Inter', sans-serif;
-  font-weight: 700;
+  font-family: var(--font);
+  font-weight: 800;
+  letter-spacing: -0.01em;
   color: var(--ink);
   margin: 0 0 4px 0;
 }
@@ -82,16 +90,17 @@ a:hover { text-decoration: underline; }
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 22px 20px;
+  padding: 16px 20px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
 .logo-sidebar {
-  width: 140px;
+  width: 118px;
   height: auto;
   background: #fff;
-  border-radius: 10px;
-  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+  display: block;
 }
 
 .qerp-nav {
@@ -102,22 +111,24 @@ a:hover { text-decoration: underline; }
 
 .qerp-nav .seccion-titulo {
   text-transform: uppercase;
-  font-size: 11px;
-  letter-spacing: 1px;
-  color: #6E7890;
-  padding: 12px 12px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #6E7096;
+  padding: 14px 12px 8px;
 }
 
 .qerp-nav a {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
-  border-radius: var(--radius);
-  color: #C9D0DE;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  color: #C9CBDB;
   font-weight: 500;
   font-size: 13.5px;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
+  position: relative;
 }
 
 .qerp-nav a:hover {
@@ -127,8 +138,19 @@ a:hover { text-decoration: underline; }
 }
 
 .qerp-nav a.activo {
-  background: var(--accent);
+  background: rgba(91, 110, 245, 0.16);
   color: #fff;
+}
+
+.qerp-nav a.activo::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--accent);
 }
 
 .qerp-sidebar .usuario-box {
@@ -153,6 +175,16 @@ a:hover { text-decoration: underline; }
   color: #E9A3A3;
   font-size: 12.5px;
 }
+
+.sidebar-footer {
+  padding: 12px 20px;
+  font-size: 11px;
+  color: #6E7096;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-footer a { color: #9DA6D9; }
+.sidebar-footer a:hover { color: #fff; }
 
 /* ---------- Contenido principal ---------- */
 .qerp-main {
@@ -181,10 +213,11 @@ a:hover { text-decoration: underline; }
 }
 
 .qerp-header .eyebrow {
-  font-size: 12px;
+  font-size: 10.5px;
+  font-weight: 700;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.14em;
 }
 
 .qerp-content {
@@ -197,9 +230,9 @@ a:hover { text-decoration: underline; }
   position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
-  padding: 20px;
+  padding: 24px 28px;
 }
 
 .card + .card { margin-top: 16px; }
@@ -208,28 +241,34 @@ a:hover { text-decoration: underline; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
+/* Grilla de KPIs con líneas finas compartidas en vez de tarjetas
+   individuales con borde (cada .kpi es una celda de un grid con gap
+   de 1px pintado con --border, así el "borde" es en realidad el
+   fondo del contenedor asomando entre celdas). */
 .grid-kpis {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 24px;
 }
 
 .kpi {
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 18px 20px;
-  border-left: 3px solid var(--accent);
+  padding: 20px 24px;
 }
 
 .kpi .valor {
-  font-family: 'Manrope', sans-serif;
   font-size: 26px;
   font-weight: 800;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
   color: var(--ink);
 }
 
@@ -244,25 +283,29 @@ a:hover { text-decoration: underline; }
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 9px 16px;
-  border-radius: var(--radius);
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
   border: 1px solid transparent;
-  font-size: 13.5px;
-  font-weight: 600;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   cursor: pointer;
   text-decoration: none !important;
+  transition: background .15s, transform .1s, border-color .15s, color .15s;
 }
+
+.btn:active { transform: translateY(1px); }
 
 .btn-primary { background: var(--accent); color: #fff; }
 .btn-primary:hover { background: var(--accent-hover); }
 
 .btn-outline { background: transparent; border-color: var(--border); color: var(--ink); }
-.btn-outline:hover { background: var(--bg); }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
 
 .btn-danger { background: var(--danger-light); color: var(--danger); }
 .btn-danger:hover { background: #FBD9D9; }
 
-.btn-sm { padding: 5px 10px; font-size: 12.5px; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
 
 /* ---------- Formularios ---------- */
 label {
@@ -274,11 +317,12 @@ label {
 }
 
 input[type=text], input[type=email], input[type=password],
-input[type=date], input[type=datetime-local], select, textarea {
+input[type=date], input[type=datetime-local], input[type=time], input[type=number],
+select, textarea {
   width: 100%;
-  padding: 9px 12px;
+  padding: 10px 13px;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   font-size: 13.5px;
   font-family: inherit;
   color: var(--ink);
@@ -286,9 +330,9 @@ input[type=date], input[type=datetime-local], select, textarea {
 }
 
 input:focus, select:focus, textarea:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
+  outline: none;
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
 }
 
 .input-password { position: relative; }
@@ -509,16 +553,16 @@ table.tabla-qerp {
 .tabla-qerp th {
   text-align: left;
   color: var(--muted);
-  font-weight: 600;
-  font-size: 12px;
+  font-weight: 700;
+  font-size: 10.5px;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
-  padding: 10px 14px;
+  letter-spacing: 0.1em;
+  padding: 12px 18px;
   border-bottom: 1px solid var(--border);
 }
 
 .tabla-qerp td {
-  padding: 12px 14px;
+  padding: 15px 18px;
   border-bottom: 1px solid var(--border);
   color: var(--ink);
 }
@@ -550,16 +594,30 @@ table.tabla-qerp {
 
 /* ---------- Badges de estado ---------- */
 .badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 11.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 100px;
+  font-size: 11px;
   font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .badge-activo, .badge-completado { background: var(--success-light); color: var(--success); }
+.badge-activo::before, .badge-completado::before { background: var(--success); }
 .badge-prospecto { background: var(--warning-light); color: var(--warning); }
+.badge-prospecto::before { background: var(--warning); }
 .badge-inactivo { background: var(--danger-light); color: var(--danger); }
+.badge-inactivo::before { background: var(--danger); }
 
 /* ---------- Alertas ---------- */
 .alerta {
@@ -582,7 +640,7 @@ table.tabla-qerp {
 
 .login-card {
   background: var(--surface);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
   padding: 40px 36px;
   width: 100%;
@@ -633,4 +691,9 @@ table.tabla-qerp {
   .menu-toggle { display: flex; }
   .qerp-header { gap: 12px; }
   .card-header { flex-wrap: wrap; gap: 10px; }
+  .grid-kpis { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .grid-kpis { grid-template-columns: 1fr; }
 }

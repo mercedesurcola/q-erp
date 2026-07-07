@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Sin permisos · CUSOL</title>
+    <link rel="icon" type="image/png" href="<?= asset('/assets/img/favicon.png') ?>">
     <link rel="stylesheet" href="<?= asset('/assets/css/style.css') ?>">
 </head>
 <body style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg);">

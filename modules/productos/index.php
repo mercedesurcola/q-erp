@@ -40,7 +40,6 @@ include __DIR__ . '/../../includes/header.php';
     <table class="tabla-qerp tabla-filtrable">
         <thead>
             <tr>
-                <th>Código</th>
                 <th>Nombre</th>
                 <th>Tipo</th>
                 <th>Precio</th>
@@ -51,7 +50,6 @@ include __DIR__ . '/../../includes/header.php';
         <tbody>
             <?php foreach ($productos as $p): ?>
             <tr>
-                <td style="color:var(--muted);">#<?= str_pad((string) $p['id'], 5, '0', STR_PAD_LEFT) ?></td>
                 <td>
                     <strong><?= e($p['nombre']) ?></strong>
                     <?php if ($p['detalle']): ?><br><span style="color:var(--muted);font-size:12px;"><?= e($p['detalle']) ?></span><?php endif; ?>
@@ -78,7 +76,7 @@ include __DIR__ . '/../../includes/header.php';
             </tr>
             <?php endforeach; ?>
             <?php if (!$productos): ?>
-                <tr><td colspan="6" style="color:var(--muted);">Todavía no hay productos/servicios cargados.</td></tr>
+                <tr><td colspan="5" style="color:var(--muted);">Todavía no hay productos/servicios cargados.</td></tr>
             <?php endif; ?>
         </tbody>
     </table>

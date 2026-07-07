@@ -31,9 +31,9 @@ foreach (array_keys($grupos) as $g) {
 }
 ?>
 <aside class="qerp-sidebar" id="qerpSidebar">
-    <div class="brand">
+    <a class="brand" href="<?= QERP_URL_BASE ?>/index.php" title="Ir al inicio">
         <img src="<?= QERP_URL_BASE ?>/assets/img/logo-cusol.png" alt="CUSOL" class="logo-sidebar">
-    </div>
+    </a>
     <nav class="qerp-nav">
         <?php foreach ($ordenGrupos as $grupo): ?>
             <?php
@@ -54,5 +54,8 @@ foreach (array_keys($grupos) as $g) {
         <div class="nombre"><?= e($usuario['nombre'] . ' ' . $usuario['apellido']) ?></div>
         <div class="perfil"><?= e($usuario['perfil']) ?></div>
         <a class="salir" href="<?= QERP_URL_BASE ?>/login/logout.php">Cerrar sesión</a>
+    </div>
+    <div class="sidebar-footer">
+        Un producto de <a href="https://www.cusol.com.ar" target="_blank" rel="noopener">cusol.com.ar</a>
     </div>
 </aside>
