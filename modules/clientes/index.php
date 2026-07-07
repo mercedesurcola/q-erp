@@ -18,8 +18,8 @@ $busqueda = trim($_GET['q'] ?? '');
 $estadoFiltro = $_GET['estado'] ?? '';
 
 $sql = "SELECT c.*, u.nombre AS resp_nombre, u.apellido AS resp_apellido
-        FROM clientes c
-        LEFT JOIN usuarios u ON u.id = c.usuario_asignado
+        FROM qerp_clientes c
+        LEFT JOIN qerp_usuarios u ON u.id = c.usuario_asignado
         WHERE 1=1";
 $params = [];
 

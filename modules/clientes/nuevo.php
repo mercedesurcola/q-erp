@@ -7,7 +7,7 @@ $tituloPagina = 'Nuevo cliente';
 $eyebrowPagina = 'CRM · Clientes';
 $slugSeccionActual = 'clientes';
 
-$usuarios = $pdo->query("SELECT id, nombre, apellido FROM usuarios WHERE activo = 1 ORDER BY apellido")->fetchAll();
+$usuarios = $pdo->query("SELECT id, nombre, apellido FROM qerp_usuarios WHERE activo = 1 ORDER BY apellido")->fetchAll();
 
 $errores = [];
 $datos = [
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errores) {
         $stmt = $pdo->prepare(
-            'INSERT INTO clientes (razon_social, nombre_fantasia, cuit, mail, telefono, direccion,
+            'INSERT INTO qerp_clientes (razon_social, nombre_fantasia, cuit, mail, telefono, direccion,
                                     localidad, provincia, estado, origen, usuario_asignado, notas)
              VALUES (:razon_social, :nombre_fantasia, :cuit, :mail, :telefono, :direccion,
                      :localidad, :provincia, :estado, :origen, :usuario_asignado, :notas)'

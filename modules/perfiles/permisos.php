@@ -8,7 +8,7 @@ $eyebrowPagina = 'Administración · Perfiles';
 $slugSeccionActual = 'perfiles';
 
 $id = (int) ($_GET['id'] ?? 0);
-$stmt = $pdo->prepare('SELECT * FROM perfiles WHERE id = :id');
+$stmt = $pdo->prepare('SELECT * FROM qerp_perfiles WHERE id = :id');
 $stmt->execute([':id' => $id]);
 $perfil = $stmt->fetch();
 
@@ -17,7 +17,7 @@ if (!$perfil) {
     exit;
 }
 
-$secciones = $pdo->query('SELECT * FROM secciones ORDER BY orden')->fetchAll();
+$secciones = $pdo->query('SELECT * FROM qerp_secciones ORDER BY orden')->fetchAll();
 
 $mensaje = $_SESSION['flash_ok'] ?? null;
 unset($_SESSION['flash_ok']);
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $permisosPost = $_POST['permiso'] ?? []; // [seccion_id => [ver, crear, editar, eliminar]]
 
     $upsert = $pdo->prepare(
-        'INSERT INTO perfil_permisos (perfil_id, seccion_id, ver, crear, editar, eliminar)
+        'INSERT INTO qerp_perfil_permisos (perfil_id, seccion_id, ver, crear, editar, eliminar)
          VALUES (:perfil_id, :seccion_id, :ver, :crear, :editar, :eliminar)
          ON DUPLICATE KEY UPDATE ver = :ver2, crear = :crear2, editar = :editar2, eliminar = :eliminar2'
     );
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Traer permisos actuales del perfil
-$stmt = $pdo->prepare('SELECT * FROM perfil_permisos WHERE perfil_id = :id');
+$stmt = $pdo->prepare('SELECT * FROM qerp_perfil_permisos WHERE perfil_id = :id');
 $stmt->execute([':id' => $id]);
 $permisosActuales = [];
 foreach ($stmt->fetchAll() as $row) {

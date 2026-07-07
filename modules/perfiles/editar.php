@@ -8,7 +8,7 @@ $eyebrowPagina = 'Administración · Perfiles';
 $slugSeccionActual = 'perfiles';
 
 $id = (int) ($_GET['id'] ?? 0);
-$stmt = $pdo->prepare('SELECT * FROM perfiles WHERE id = :id');
+$stmt = $pdo->prepare('SELECT * FROM qerp_perfiles WHERE id = :id');
 $stmt->execute([':id' => $id]);
 $perfil = $stmt->fetch();
 
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errores) {
         $stmt = $pdo->prepare(
-            'UPDATE perfiles SET nombre = :nombre, descripcion = :descripcion, activo = :activo WHERE id = :id'
+            'UPDATE qerp_perfiles SET nombre = :nombre, descripcion = :descripcion, activo = :activo WHERE id = :id'
         );
         $stmt->execute([
             ':nombre'      => $datos['nombre'],

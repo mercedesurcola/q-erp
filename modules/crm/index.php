@@ -16,9 +16,9 @@ unset($_SESSION['flash_ok']);
 $vista = $_GET['vista'] ?? 'pendientes'; // pendientes | todas
 
 $sql = "SELECT a.*, c.razon_social, u.nombre AS us_nombre, u.apellido AS us_apellido
-        FROM acciones_contacto a
-        INNER JOIN clientes c ON c.id = a.cliente_id
-        INNER JOIN usuarios u ON u.id = a.usuario_id";
+        FROM qerp_acciones_contacto a
+        INNER JOIN qerp_clientes c ON c.id = a.cliente_id
+        INNER JOIN qerp_usuarios u ON u.id = a.usuario_id";
 
 if ($vista === 'pendientes') {
     $sql .= " WHERE a.proximo_seguimiento IS NOT NULL AND a.proximo_seguimiento >= NOW()

@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../includes/funciones.php';
 requerirPermiso($pdo, 'crm', 'crear');
 
 $clienteId = (int) ($_GET['cliente_id'] ?? $_POST['cliente_id'] ?? 0);
-$stmt = $pdo->prepare('SELECT id, razon_social FROM clientes WHERE id = :id');
+$stmt = $pdo->prepare('SELECT id, razon_social FROM qerp_clientes WHERE id = :id');
 $stmt->execute([':id' => $clienteId]);
 $cliente = $stmt->fetch();
 
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errores) {
         $stmt = $pdo->prepare(
-            'INSERT INTO acciones_contacto (cliente_id, usuario_id, tipo, detalle, proximo_seguimiento)
+            'INSERT INTO qerp_acciones_contacto (cliente_id, usuario_id, tipo, detalle, proximo_seguimiento)
              VALUES (:cliente_id, :usuario_id, :tipo, :detalle, :seguimiento)'
         );
         $stmt->execute([

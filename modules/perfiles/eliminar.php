@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $id = (int) ($_POST['id'] ?? 0);
 
-$stmt = $pdo->prepare('DELETE FROM perfiles WHERE id = :id');
+$stmt = $pdo->prepare('DELETE FROM qerp_perfiles WHERE id = :id');
 $stmt->execute([':id' => $id]);
 
 $_SESSION['flash_ok'] = 'Perfil eliminado correctamente.';

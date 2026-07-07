@@ -65,8 +65,8 @@ function tienePermiso(PDO $pdo, string $slugSeccion, string $accion = 'ver'): bo
     if (!isset($cache[$clave])) {
         $stmt = $pdo->prepare(
             "SELECT pp.ver, pp.crear, pp.editar, pp.eliminar
-             FROM perfil_permisos pp
-             INNER JOIN secciones s ON s.id = pp.seccion_id
+             FROM qerp_perfil_permisos pp
+             INNER JOIN qerp_secciones s ON s.id = pp.seccion_id
              WHERE pp.perfil_id = :perfil_id AND s.slug = :slug
              LIMIT 1"
         );
@@ -106,6 +106,6 @@ function e(?string $valor): string
  */
 function obtenerSeccionesMenu(PDO $pdo): array
 {
-    $stmt = $pdo->query('SELECT * FROM secciones ORDER BY orden ASC');
+    $stmt = $pdo->query('SELECT * FROM qerp_secciones ORDER BY orden ASC');
     return $stmt->fetchAll();
 }

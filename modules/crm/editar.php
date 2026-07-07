@@ -9,8 +9,8 @@ $slugSeccionActual = 'crm';
 
 $id = (int) ($_GET['id'] ?? 0);
 $stmt = $pdo->prepare(
-    "SELECT a.*, c.razon_social FROM acciones_contacto a
-     INNER JOIN clientes c ON c.id = a.cliente_id WHERE a.id = :id"
+    "SELECT a.*, c.razon_social FROM qerp_acciones_contacto a
+     INNER JOIN qerp_clientes c ON c.id = a.cliente_id WHERE a.id = :id"
 );
 $stmt->execute([':id' => $id]);
 $accion = $stmt->fetch();
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errores) {
         $stmt = $pdo->prepare(
-            'UPDATE acciones_contacto SET tipo = :tipo, detalle = :detalle, proximo_seguimiento = :seguimiento
+            'UPDATE qerp_acciones_contacto SET tipo = :tipo, detalle = :detalle, proximo_seguimiento = :seguimiento
              WHERE id = :id'
         );
         $stmt->execute([

@@ -10,7 +10,7 @@ $slugSeccionActual = 'usuarios';
 $errores = [];
 $datos = ['nombre' => '', 'apellido' => '', 'mail' => '', 'perfil_id' => ''];
 
-$perfiles = $pdo->query("SELECT id, nombre FROM perfiles WHERE activo = 1 ORDER BY nombre")->fetchAll();
+$perfiles = $pdo->query("SELECT id, nombre FROM qerp_perfiles WHERE activo = 1 ORDER BY nombre")->fetchAll();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $datos['nombre']    = trim($_POST['nombre'] ?? '');
@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (strlen($password) < 6) $errores[] = 'La contraseña debe tener al menos 6 caracteres.';
 
     if (!$errores) {
-        $stmt = $pdo->prepare('SELECT id FROM usuarios WHERE mail = :mail');
+        $stmt = $pdo->prepare('SELECT id FROM qerp_usuarios WHERE mail = :mail');
         $stmt->execute([':mail' => $datos['mail']]);
         if ($stmt->fetch()) {
             $errores[] = 'Ya existe un usuario con ese correo.';
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errores) {
         $stmt = $pdo->prepare(
-            'INSERT INTO usuarios (nombre, apellido, mail, password, perfil_id, activo)
+            'INSERT INTO qerp_usuarios (nombre, apellido, mail, password, perfil_id, activo)
              VALUES (:nombre, :apellido, :mail, :password, :perfil_id, 1)'
         );
         $stmt->execute([

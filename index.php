@@ -7,10 +7,10 @@ $tituloPagina = 'Inicio';
 $eyebrowPagina = 'Panel general';
 $slugSeccionActual = '';
 
-$totalClientes = (int) $pdo->query("SELECT COUNT(*) c FROM clientes")->fetch()['c'];
-$prospectos     = (int) $pdo->query("SELECT COUNT(*) c FROM clientes WHERE estado = 'prospecto'")->fetch()['c'];
-$activos        = (int) $pdo->query("SELECT COUNT(*) c FROM clientes WHERE estado = 'activo'")->fetch()['c'];
-$accionesHoy    = (int) $pdo->query("SELECT COUNT(*) c FROM acciones_contacto WHERE DATE(fecha) = CURDATE()")->fetch()['c'];
+$totalClientes = (int) $pdo->query("SELECT COUNT(*) c FROM qerp_clientes")->fetch()['c'];
+$prospectos     = (int) $pdo->query("SELECT COUNT(*) c FROM qerp_clientes WHERE estado = 'prospecto'")->fetch()['c'];
+$activos        = (int) $pdo->query("SELECT COUNT(*) c FROM qerp_clientes WHERE estado = 'activo'")->fetch()['c'];
+$accionesHoy    = (int) $pdo->query("SELECT COUNT(*) c FROM qerp_acciones_contacto WHERE DATE(fecha) = CURDATE()")->fetch()['c'];
 
 include __DIR__ . '/includes/header.php';
 ?>

@@ -8,7 +8,7 @@ $eyebrowPagina = 'Administración · Usuarios';
 $slugSeccionActual = 'usuarios';
 
 $id = (int) ($_GET['id'] ?? 0);
-$stmt = $pdo->prepare('SELECT * FROM usuarios WHERE id = :id');
+$stmt = $pdo->prepare('SELECT * FROM qerp_usuarios WHERE id = :id');
 $stmt->execute([':id' => $id]);
 $usuario = $stmt->fetch();
 
@@ -17,7 +17,7 @@ if (!$usuario) {
     exit;
 }
 
-$perfiles = $pdo->query("SELECT id, nombre FROM perfiles WHERE activo = 1 ORDER BY nombre")->fetchAll();
+$perfiles = $pdo->query("SELECT id, nombre FROM qerp_perfiles WHERE activo = 1 ORDER BY nombre")->fetchAll();
 $errores = [];
 
 $datos = [
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!$errores) {
-        $stmt = $pdo->prepare('SELECT id FROM usuarios WHERE mail = :mail AND id != :id');
+        $stmt = $pdo->prepare('SELECT id FROM qerp_usuarios WHERE mail = :mail AND id != :id');
         $stmt->execute([':mail' => $datos['mail'], ':id' => $id]);
         if ($stmt->fetch()) {
             $errores[] = 'Ya existe otro usuario con ese correo.';
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$errores) {
         if ($nuevaPassword !== '') {
             $stmt = $pdo->prepare(
-                'UPDATE usuarios SET nombre = :nombre, apellido = :apellido, mail = :mail,
+                'UPDATE qerp_usuarios SET nombre = :nombre, apellido = :apellido, mail = :mail,
                  perfil_id = :perfil_id, activo = :activo, password = :password WHERE id = :id'
             );
             $stmt->execute([
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
         } else {
             $stmt = $pdo->prepare(
-                'UPDATE usuarios SET nombre = :nombre, apellido = :apellido, mail = :mail,
+                'UPDATE qerp_usuarios SET nombre = :nombre, apellido = :apellido, mail = :mail,
                  perfil_id = :perfil_id, activo = :activo WHERE id = :id'
             );
             $stmt->execute([

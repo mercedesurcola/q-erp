@@ -6,9 +6,9 @@
 
 // ---- Datos de conexión ----
 define('DB_HOST', 'localhost');       // Donweb generalmente usa 'localhost'
-define('DB_NAME', 'nombre_basedatos'); // ej: cpanelusuario_qerp
-define('DB_USER', 'usuario_db');       // ej: cpanelusuario_qerp
-define('DB_PASS', 'password_db');
+define('DB_NAME', 'a0141120_cusol'); // ej: cpanelusuario_qerp
+define('DB_USER', 'a0141120_cusol');       // ej: cpanelusuario_qerp
+define('DB_PASS', 'Sopap@31502021*');
 
 // ---- Configuración general del sistema ----
 define('QERP_NOMBRE', 'Qerp');

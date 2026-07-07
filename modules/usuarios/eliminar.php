@@ -16,7 +16,7 @@ if ($id === (int) $_SESSION['usuario_id']) {
     exit;
 }
 
-$stmt = $pdo->prepare('DELETE FROM usuarios WHERE id = :id');
+$stmt = $pdo->prepare('DELETE FROM qerp_usuarios WHERE id = :id');
 $stmt->execute([':id' => $id]);
 
 $_SESSION['flash_ok'] = 'Usuario eliminado correctamente.';

@@ -17,8 +17,8 @@ unset($_SESSION['flash_ok']);
 $usuarios = $pdo->query(
     "SELECT u.id, u.nombre, u.apellido, u.mail, u.activo, u.ultimo_acceso,
             p.nombre AS perfil_nombre
-     FROM usuarios u
-     LEFT JOIN perfiles p ON p.id = u.perfil_id
+     FROM qerp_usuarios u
+     LEFT JOIN qerp_perfiles p ON p.id = u.perfil_id
      ORDER BY u.apellido, u.nombre"
 )->fetchAll();
 

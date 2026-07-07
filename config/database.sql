@@ -8,7 +8,7 @@ SET NAMES utf8mb4;
 -- ---------------------------------------------------------
 -- Perfiles (roles): Administrador, Vendedor, etc.
 -- ---------------------------------------------------------
-CREATE TABLE perfiles (
+CREATE TABLE qerp_perfiles (
   id INT PRIMARY KEY AUTO_INCREMENT,
   nombre VARCHAR(50) NOT NULL,
   descripcion VARCHAR(255) DEFAULT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE perfiles (
 -- Secciones del sistema (módulos): usuarios, clientes, crm...
 -- Sirve para armar el menú y la matriz de permisos.
 -- ---------------------------------------------------------
-CREATE TABLE secciones (
+CREATE TABLE qerp_secciones (
   id INT PRIMARY KEY AUTO_INCREMENT,
   nombre VARCHAR(100) NOT NULL,
   slug VARCHAR(100) NOT NULL UNIQUE,
@@ -31,7 +31,7 @@ CREATE TABLE secciones (
 -- ---------------------------------------------------------
 -- Matriz de permisos: qué puede hacer cada perfil en cada sección
 -- ---------------------------------------------------------
-CREATE TABLE perfil_permisos (
+CREATE TABLE qerp_perfil_permisos (
   perfil_id INT NOT NULL,
   seccion_id INT NOT NULL,
   ver TINYINT(1) NOT NULL DEFAULT 0,
@@ -39,14 +39,14 @@ CREATE TABLE perfil_permisos (
   editar TINYINT(1) NOT NULL DEFAULT 0,
   eliminar TINYINT(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (perfil_id, seccion_id),
-  FOREIGN KEY (perfil_id) REFERENCES perfiles(id) ON DELETE CASCADE,
-  FOREIGN KEY (seccion_id) REFERENCES secciones(id) ON DELETE CASCADE
+  FOREIGN KEY (perfil_id) REFERENCES qerp_perfiles(id) ON DELETE CASCADE,
+  FOREIGN KEY (seccion_id) REFERENCES qerp_secciones(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ---------------------------------------------------------
 -- Usuarios del sistema
 -- ---------------------------------------------------------
-CREATE TABLE usuarios (
+CREATE TABLE qerp_usuarios (
   id INT PRIMARY KEY AUTO_INCREMENT,
   nombre VARCHAR(100) NOT NULL,
   apellido VARCHAR(100) NOT NULL,
@@ -56,13 +56,13 @@ CREATE TABLE usuarios (
   activo TINYINT(1) NOT NULL DEFAULT 1,
   ultimo_acceso DATETIME DEFAULT NULL,
   creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (perfil_id) REFERENCES perfiles(id) ON DELETE SET NULL
+  FOREIGN KEY (perfil_id) REFERENCES qerp_perfiles(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ---------------------------------------------------------
 -- Clientes (CRM)
 -- ---------------------------------------------------------
-CREATE TABLE clientes (
+CREATE TABLE qerp_clientes (
   id INT PRIMARY KEY AUTO_INCREMENT,
   razon_social VARCHAR(150) NOT NULL,
   nombre_fantasia VARCHAR(150) DEFAULT NULL,
@@ -78,13 +78,13 @@ CREATE TABLE clientes (
   notas TEXT DEFAULT NULL,
   creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
   actualizado_en DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (usuario_asignado) REFERENCES usuarios(id) ON DELETE SET NULL
+  FOREIGN KEY (usuario_asignado) REFERENCES qerp_usuarios(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ---------------------------------------------------------
 -- Acciones de contacto (llamadas, mails, reuniones, etc.)
 -- ---------------------------------------------------------
-CREATE TABLE acciones_contacto (
+CREATE TABLE qerp_acciones_contacto (
   id INT PRIMARY KEY AUTO_INCREMENT,
   cliente_id INT NOT NULL,
   usuario_id INT NOT NULL,
@@ -93,33 +93,33 @@ CREATE TABLE acciones_contacto (
   fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
   proximo_seguimiento DATETIME DEFAULT NULL,
   completado TINYINT(1) NOT NULL DEFAULT 1,
-  FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE,
-  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+  FOREIGN KEY (cliente_id) REFERENCES qerp_clientes(id) ON DELETE CASCADE,
+  FOREIGN KEY (usuario_id) REFERENCES qerp_usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ---------------------------------------------------------
 -- Datos iniciales
 -- ---------------------------------------------------------
 
-INSERT INTO perfiles (nombre, descripcion) VALUES
+INSERT INTO qerp_perfiles (nombre, descripcion) VALUES
   ('Administrador', 'Acceso total al sistema'),
   ('Vendedor', 'Gestión de clientes y CRM');
 
-INSERT INTO secciones (nombre, slug, icono, orden) VALUES
+INSERT INTO qerp_secciones (nombre, slug, icono, orden) VALUES
   ('Usuarios', 'usuarios', 'users', 1),
   ('Perfiles', 'perfiles', 'shield', 2),
   ('Clientes', 'clientes', 'briefcase', 3),
   ('CRM - Acciones de contacto', 'crm', 'phone-call', 4);
 
 -- Administrador: acceso total a todas las secciones
-INSERT INTO perfil_permisos (perfil_id, seccion_id, ver, crear, editar, eliminar)
-SELECT 1, id, 1, 1, 1, 1 FROM secciones;
+INSERT INTO qerp_perfil_permisos (perfil_id, seccion_id, ver, crear, editar, eliminar)
+SELECT 1, id, 1, 1, 1, 1 FROM qerp_secciones;
 
 -- Vendedor: solo ve/edita clientes y crm, no administra usuarios/perfiles
-INSERT INTO perfil_permisos (perfil_id, seccion_id, ver, crear, editar, eliminar)
-SELECT 2, id, 1, 1, 1, 0 FROM secciones WHERE slug IN ('clientes','crm');
+INSERT INTO qerp_perfil_permisos (perfil_id, seccion_id, ver, crear, editar, eliminar)
+SELECT 2, id, 1, 1, 1, 0 FROM qerp_secciones WHERE slug IN ('clientes','crm');
 
 -- Usuario administrador inicial -> password: Qerp2026! (cambiar luego)
 -- Hash bcrypt real, compatible con password_verify() de PHP
-INSERT INTO usuarios (nombre, apellido, mail, password, perfil_id) VALUES
+INSERT INTO qerp_usuarios (nombre, apellido, mail, password, perfil_id) VALUES
   ('Admin', 'Qerp', 'admin@qerp.local', '$2b$10$pL.4gp7LQf5fpkTpLGJ6PecYIfPmtb44tvi5.APWpVW9Nf9/0JSry', 1);

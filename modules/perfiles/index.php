@@ -15,8 +15,8 @@ $mensaje = $_SESSION['flash_ok'] ?? null;
 unset($_SESSION['flash_ok']);
 
 $perfiles = $pdo->query(
-    "SELECT p.*, (SELECT COUNT(*) FROM usuarios u WHERE u.perfil_id = p.id) AS cant_usuarios
-     FROM perfiles p ORDER BY p.nombre"
+    "SELECT p.*, (SELECT COUNT(*) FROM qerp_usuarios u WHERE u.perfil_id = p.id) AS cant_usuarios
+     FROM qerp_perfiles p ORDER BY p.nombre"
 )->fetchAll();
 
 include __DIR__ . '/../../includes/header.php';

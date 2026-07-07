@@ -8,7 +8,7 @@ $eyebrowPagina = 'CRM · Clientes';
 $slugSeccionActual = 'clientes';
 
 $id = (int) ($_GET['id'] ?? 0);
-$stmt = $pdo->prepare('SELECT * FROM clientes WHERE id = :id');
+$stmt = $pdo->prepare('SELECT * FROM qerp_clientes WHERE id = :id');
 $stmt->execute([':id' => $id]);
 $cliente = $stmt->fetch();
 
@@ -17,7 +17,7 @@ if (!$cliente) {
     exit;
 }
 
-$usuarios = $pdo->query("SELECT id, nombre, apellido FROM usuarios WHERE activo = 1 ORDER BY apellido")->fetchAll();
+$usuarios = $pdo->query("SELECT id, nombre, apellido FROM qerp_usuarios WHERE activo = 1 ORDER BY apellido")->fetchAll();
 $errores = [];
 
 $campos = ['razon_social','nombre_fantasia','cuit','mail','telefono','direccion','localidad','provincia','estado','origen','usuario_asignado','notas'];
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errores) {
         $stmt = $pdo->prepare(
-            'UPDATE clientes SET razon_social = :razon_social, nombre_fantasia = :nombre_fantasia,
+            'UPDATE qerp_clientes SET razon_social = :razon_social, nombre_fantasia = :nombre_fantasia,
              cuit = :cuit, mail = :mail, telefono = :telefono, direccion = :direccion,
              localidad = :localidad, provincia = :provincia, estado = :estado, origen = :origen,
              usuario_asignado = :usuario_asignado, notas = :notas

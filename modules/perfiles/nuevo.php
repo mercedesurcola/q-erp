@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($datos['nombre'] === '') $errores[] = 'El nombre del perfil es obligatorio.';
 
     if (!$errores) {
-        $stmt = $pdo->prepare('INSERT INTO perfiles (nombre, descripcion) VALUES (:nombre, :descripcion)');
+        $stmt = $pdo->prepare('INSERT INTO qerp_perfiles (nombre, descripcion) VALUES (:nombre, :descripcion)');
         $stmt->execute([':nombre' => $datos['nombre'], ':descripcion' => $datos['descripcion']]);
         $nuevoId = (int) $pdo->lastInsertId();
         $_SESSION['flash_ok'] = 'Perfil creado. Ahora configurá sus permisos.';

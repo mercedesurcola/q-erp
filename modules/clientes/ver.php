@@ -6,7 +6,7 @@ requerirPermiso($pdo, 'clientes', 'ver');
 $id = (int) ($_GET['id'] ?? 0);
 $stmt = $pdo->prepare(
     "SELECT c.*, u.nombre AS resp_nombre, u.apellido AS resp_apellido
-     FROM clientes c LEFT JOIN usuarios u ON u.id = c.usuario_asignado
+     FROM qerp_clientes c LEFT JOIN qerp_usuarios u ON u.id = c.usuario_asignado
      WHERE c.id = :id"
 );
 $stmt->execute([':id' => $id]);
@@ -31,8 +31,8 @@ $acciones = [];
 if ($puedeVerCrm) {
     $stmt = $pdo->prepare(
         "SELECT a.*, u.nombre AS us_nombre, u.apellido AS us_apellido
-         FROM acciones_contacto a
-         INNER JOIN usuarios u ON u.id = a.usuario_id
+         FROM qerp_acciones_contacto a
+         INNER JOIN qerp_usuarios u ON u.id = a.usuario_id
          WHERE a.cliente_id = :id
          ORDER BY a.fecha DESC"
     );

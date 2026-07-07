@@ -19,8 +19,8 @@ if ($mail === '' || $password === '') {
 $stmt = $pdo->prepare(
     "SELECT u.id, u.nombre, u.apellido, u.mail, u.password, u.activo,
             u.perfil_id, p.nombre AS perfil_nombre
-     FROM usuarios u
-     LEFT JOIN perfiles p ON p.id = u.perfil_id
+     FROM qerp_usuarios u
+     LEFT JOIN qerp_perfiles p ON p.id = u.perfil_id
      WHERE u.mail = :mail
      LIMIT 1"
 );
@@ -49,7 +49,7 @@ $_SESSION['usuario_mail']     = $usuario['mail'];
 $_SESSION['perfil_id']        = $usuario['perfil_id'];
 $_SESSION['perfil_nombre']    = $usuario['perfil_nombre'] ?? 'Sin perfil';
 
-$pdo->prepare('UPDATE usuarios SET ultimo_acceso = NOW() WHERE id = :id')
+$pdo->prepare('UPDATE qerp_usuarios SET ultimo_acceso = NOW() WHERE id = :id')
     ->execute([':id' => $usuario['id']]);
 
 header('Location: ' . QERP_URL_BASE . '/index.php');

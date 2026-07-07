@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $id = (int) ($_POST['id'] ?? 0);
 
-$stmt = $pdo->prepare('DELETE FROM clientes WHERE id = :id');
+$stmt = $pdo->prepare('DELETE FROM qerp_clientes WHERE id = :id');
 $stmt->execute([':id' => $id]);
 
 $_SESSION['flash_ok'] = 'Cliente eliminado correctamente.';
