@@ -6,17 +6,29 @@
 
 // ---- Datos de conexión ----
 define('DB_HOST', 'localhost');       // Donweb generalmente usa 'localhost'
-define('DB_NAME', 'a0141120_cusol'); // ej: cpanelusuario_qerp
-define('DB_USER', 'a0141120_admin');       // ej: cpanelusuario_qerp
-define('DB_PASS', 'Sopap@31502021*');
+
+$esLocal = in_array($_SERVER['SERVER_NAME'] ?? '', ['localhost', '127.0.0.1'], true);
+
+if ($esLocal) {
+    // WAMP local: MariaDB de WAMP escucha en el puerto 3307 (el 3306 lo usa otro MySQL instalado aparte)
+    define('DB_PORT', '3307');
+    define('DB_NAME', 'qerp_local');
+    define('DB_USER', 'root');
+    define('DB_PASS', '');
+} else {
+    define('DB_PORT', '3306');
+    define('DB_NAME', 'a0141120_cusol'); // ej: cpanelusuario_qerp
+    define('DB_USER', 'a0141120_admin');       // ej: cpanelusuario_qerp
+    define('DB_PASS', 'Sopap@31502021*');
+}
 
 // ---- Configuración general del sistema ----
 define('QERP_NOMBRE', 'Qerp');
-define('QERP_URL_BASE', '/Qerp'); // ajustar si el ERP no está en la raíz
+define('QERP_URL_BASE', '/q-erp'); // ajustar si el ERP no está en la raíz
 
 try {
     $pdo = new PDO(
-        'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4',
+        'mysql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME . ';charset=utf8mb4',
         DB_USER,
         DB_PASS,
         [
