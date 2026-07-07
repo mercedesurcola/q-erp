@@ -86,19 +86,53 @@ CREATE TABLE qerp_clientes (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ---------------------------------------------------------
+-- Catálogos administrables de motivo y resultado de contacto
+-- ---------------------------------------------------------
+CREATE TABLE qerp_motivos_contacto (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  nombre VARCHAR(100) NOT NULL,
+  activo TINYINT(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE qerp_resultados_contacto (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  nombre VARCHAR(100) NOT NULL,
+  activo TINYINT(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ---------------------------------------------------------
 -- Acciones de contacto (llamadas, mails, reuniones, etc.)
 -- ---------------------------------------------------------
 CREATE TABLE qerp_acciones_contacto (
   id INT PRIMARY KEY AUTO_INCREMENT,
   cliente_id INT NOT NULL,
   usuario_id INT NOT NULL,
-  tipo ENUM('llamada','mail','reunion','whatsapp','otro') NOT NULL,
+  canal ENUM('llamada','whatsapp','mail','reunion','videollamada') NOT NULL,
+  motivo_id INT DEFAULT NULL,
+  resultado_id INT DEFAULT NULL,
   detalle TEXT DEFAULT NULL,
   fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
   proximo_seguimiento DATETIME DEFAULT NULL,
+  accion_siguiente VARCHAR(255) DEFAULT NULL,
+  prioridad ENUM('alta','media','baja') DEFAULT NULL,
+  temperatura ENUM('frio','tibio','caliente') DEFAULT NULL,
   completado TINYINT(1) NOT NULL DEFAULT 1,
   FOREIGN KEY (cliente_id) REFERENCES qerp_clientes(id) ON DELETE CASCADE,
-  FOREIGN KEY (usuario_id) REFERENCES qerp_usuarios(id) ON DELETE CASCADE
+  FOREIGN KEY (usuario_id) REFERENCES qerp_usuarios(id) ON DELETE CASCADE,
+  FOREIGN KEY (motivo_id) REFERENCES qerp_motivos_contacto(id) ON DELETE RESTRICT,
+  FOREIGN KEY (resultado_id) REFERENCES qerp_resultados_contacto(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ---------------------------------------------------------
+-- Adjuntos de una acción de contacto
+-- ---------------------------------------------------------
+CREATE TABLE qerp_adjuntos_contacto (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  accion_id INT NOT NULL,
+  nombre_original VARCHAR(255) NOT NULL,
+  ruta VARCHAR(255) NOT NULL,
+  creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (accion_id) REFERENCES qerp_acciones_contacto(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ---------------------------------------------------------
@@ -113,7 +147,22 @@ INSERT INTO qerp_secciones (nombre, slug, icono, grupo, orden) VALUES
   ('Usuarios', 'usuarios', 'users', 'Administración', 1),
   ('Perfiles', 'perfiles', 'shield', 'Administración', 2),
   ('Clientes', 'clientes', 'briefcase', 'CRM', 3),
-  ('CRM - Acciones de contacto', 'crm', 'phone-call', 'CRM', 4);
+  ('CRM - Acciones de contacto', 'crm', 'phone-call', 'CRM', 4),
+  ('Motivos de contacto', 'motivos-contacto', 'tag', 'Administración', 5),
+  ('Resultados de contacto', 'resultados-contacto', 'flag', 'Administración', 6);
+
+INSERT INTO qerp_motivos_contacto (nombre) VALUES
+  ('Primer contacto / Prospección'),
+  ('Presentación de producto / Demo'),
+  ('Seguimiento de propuesta enviada'),
+  ('Negociación de precio / Cierre'),
+  ('Recuperación de contacto perdido');
+
+INSERT INTO qerp_resultados_contacto (nombre) VALUES
+  ('Exitoso'),
+  ('No atendió'),
+  ('Pidió que llamen más tarde'),
+  ('Rechazó la propuesta');
 
 -- Administrador: acceso total a todas las secciones
 INSERT INTO qerp_perfil_permisos (perfil_id, seccion_id, ver, crear, editar, eliminar)

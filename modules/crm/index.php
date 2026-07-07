@@ -7,6 +7,7 @@ $tituloPagina = 'CRM · Acciones de contacto';
 $eyebrowPagina = 'CRM';
 $slugSeccionActual = 'crm';
 
+$puedeCrear  = tienePermiso($pdo, 'crm', 'crear');
 $puedeEditar = tienePermiso($pdo, 'crm', 'editar');
 $puedeBorrar = tienePermiso($pdo, 'crm', 'eliminar');
 
@@ -15,10 +16,13 @@ unset($_SESSION['flash_ok']);
 
 $vista = $_GET['vista'] ?? 'pendientes'; // pendientes | todas
 
-$sql = "SELECT a.*, c.nombre AS cliente_nombre, u.nombre AS us_nombre, u.apellido AS us_apellido
+$sql = "SELECT a.*, c.nombre AS cliente_nombre, u.nombre AS us_nombre, u.apellido AS us_apellido,
+               m.nombre AS motivo_nombre, r.nombre AS resultado_nombre
         FROM qerp_acciones_contacto a
         INNER JOIN qerp_clientes c ON c.id = a.cliente_id
         INNER JOIN qerp_usuarios u ON u.id = a.usuario_id
+        LEFT JOIN qerp_motivos_contacto m ON m.id = a.motivo_id
+        LEFT JOIN qerp_resultados_contacto r ON r.id = a.resultado_id
         WHERE 1=1";
 $params = [];
 
@@ -38,10 +42,11 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $acciones = $stmt->fetchAll();
 
-$etiquetasTipo = [
+$etiquetasCanal = [
     'llamada' => 'Llamada', 'mail' => 'Correo', 'reunion' => 'Reunión',
-    'whatsapp' => 'WhatsApp', 'otro' => 'Otro',
+    'whatsapp' => 'WhatsApp', 'videollamada' => 'Videollamada',
 ];
+$etiquetasTemperatura = ['frio' => 'Frío', 'tibio' => 'Tibio', 'caliente' => 'Caliente'];
 
 include __DIR__ . '/../../includes/header.php';
 ?>
@@ -49,6 +54,9 @@ include __DIR__ . '/../../includes/header.php';
 <div class="card">
     <div class="card-header">
         <h3>Acciones de contacto</h3>
+        <?php if ($puedeCrear): ?>
+            <a href="nueva.php" class="btn btn-primary">+ Nueva actividad</a>
+        <?php endif; ?>
     </div>
 
     <?php if ($mensaje): ?>
@@ -64,8 +72,11 @@ include __DIR__ . '/../../includes/header.php';
         <thead>
             <tr>
                 <th>Cliente</th>
-                <th>Tipo</th>
-                <th>Detalle</th>
+                <th>Canal</th>
+                <th>Motivo</th>
+                <th>Resultado</th>
+                <th>Prioridad</th>
+                <th>Temp.</th>
                 <th>Fecha</th>
                 <th>Seguimiento</th>
                 <th>Registrado por</th>
@@ -76,8 +87,15 @@ include __DIR__ . '/../../includes/header.php';
             <?php foreach ($acciones as $a): ?>
             <tr>
                 <td><a href="../clientes/ver.php?id=<?= (int) $a['cliente_id'] ?>"><?= e($a['cliente_nombre']) ?></a></td>
-                <td><?= e($etiquetasTipo[$a['tipo']] ?? $a['tipo']) ?></td>
-                <td><?= e($a['detalle'] ?: '—') ?></td>
+                <td><?= e($etiquetasCanal[$a['canal']] ?? $a['canal']) ?></td>
+                <td><?= e($a['motivo_nombre'] ?: '—') ?></td>
+                <td><?= e($a['resultado_nombre'] ?: '—') ?></td>
+                <td>
+                    <?php if ($a['prioridad']): ?>
+                        <span class="badge badge-<?= $a['prioridad'] === 'alta' ? 'inactivo' : ($a['prioridad'] === 'media' ? 'prospecto' : 'activo') ?>"><?= ucfirst(e($a['prioridad'])) ?></span>
+                    <?php else: ?>—<?php endif; ?>
+                </td>
+                <td><?= $a['temperatura'] ? e($etiquetasTemperatura[$a['temperatura']]) : '—' ?></td>
                 <td><?= e(date('d/m/Y H:i', strtotime($a['fecha']))) ?></td>
                 <td><?= $a['proximo_seguimiento'] ? e(date('d/m/Y H:i', strtotime($a['proximo_seguimiento']))) : '—' ?></td>
                 <td><?= e($a['us_nombre'] . ' ' . $a['us_apellido']) ?></td>
@@ -96,7 +114,7 @@ include __DIR__ . '/../../includes/header.php';
             </tr>
             <?php endforeach; ?>
             <?php if (!$acciones): ?>
-                <tr><td colspan="7" style="color:var(--muted);">
+                <tr><td colspan="10" style="color:var(--muted);">
                     <?= $vista === 'pendientes' ? 'No hay seguimientos pendientes.' : 'Todavía no hay acciones registradas.' ?>
                 </td></tr>
             <?php endif; ?>

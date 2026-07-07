@@ -32,9 +32,12 @@ unset($_SESSION['flash_ok']);
 $acciones = [];
 if ($puedeVerCrm) {
     $stmt = $pdo->prepare(
-        "SELECT a.*, u.nombre AS us_nombre, u.apellido AS us_apellido
+        "SELECT a.*, u.nombre AS us_nombre, u.apellido AS us_apellido,
+                m.nombre AS motivo_nombre, r.nombre AS resultado_nombre
          FROM qerp_acciones_contacto a
          INNER JOIN qerp_usuarios u ON u.id = a.usuario_id
+         LEFT JOIN qerp_motivos_contacto m ON m.id = a.motivo_id
+         LEFT JOIN qerp_resultados_contacto r ON r.id = a.resultado_id
          WHERE a.cliente_id = :id
          ORDER BY a.fecha DESC"
     );
@@ -42,10 +45,11 @@ if ($puedeVerCrm) {
     $acciones = $stmt->fetchAll();
 }
 
-$etiquetasTipo = [
+$etiquetasCanal = [
     'llamada' => 'Llamada', 'mail' => 'Correo', 'reunion' => 'Reunión',
-    'whatsapp' => 'WhatsApp', 'otro' => 'Otro',
+    'whatsapp' => 'WhatsApp', 'videollamada' => 'Videollamada',
 ];
+$etiquetasTemperatura = ['frio' => 'Frío', 'tibio' => 'Tibio', 'caliente' => 'Caliente'];
 
 include __DIR__ . '/../../includes/header.php';
 ?>
@@ -102,20 +106,33 @@ include __DIR__ . '/../../includes/header.php';
             <thead>
                 <tr>
                     <th>Fecha</th>
-                    <th>Tipo</th>
+                    <th>Canal</th>
+                    <th>Motivo</th>
+                    <th>Resultado</th>
+                    <th>Temp.</th>
                     <th>Detalle</th>
+                    <th>Próximo paso</th>
                     <th>Realizado por</th>
-                    <th>Próximo seguimiento</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($acciones as $a): ?>
                 <tr>
                     <td><?= e(date('d/m/Y H:i', strtotime($a['fecha']))) ?></td>
-                    <td><?= e($etiquetasTipo[$a['tipo']] ?? $a['tipo']) ?></td>
-                    <td><?= e($a['detalle'] ?: '—') ?></td>
+                    <td><?= e($etiquetasCanal[$a['canal']] ?? $a['canal']) ?></td>
+                    <td><?= e($a['motivo_nombre'] ?: '—') ?></td>
+                    <td><?= e($a['resultado_nombre'] ?: '—') ?></td>
+                    <td><?= $a['temperatura'] ? e($etiquetasTemperatura[$a['temperatura']]) : '—' ?></td>
+                    <td><?= $a['detalle'] ? formatoTextoLite(e($a['detalle'])) : '—' ?></td>
+                    <td>
+                        <?php if ($a['accion_siguiente']): ?>
+                            <?= e($a['accion_siguiente']) ?><br>
+                            <span style="color:var(--muted);font-size:12px;">
+                                <?= $a['proximo_seguimiento'] ? e(date('d/m/Y H:i', strtotime($a['proximo_seguimiento']))) : '' ?>
+                            </span>
+                        <?php else: ?>—<?php endif; ?>
+                    </td>
                     <td><?= e($a['us_nombre'] . ' ' . $a['us_apellido']) ?></td>
-                    <td><?= $a['proximo_seguimiento'] ? e(date('d/m/Y H:i', strtotime($a['proximo_seguimiento']))) : '—' ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

@@ -175,6 +175,110 @@ function procesarImagenCliente(array $archivo): ?string
 }
 
 /**
+ * Recibe la entrada cruda de $_FILES['adjuntos'] (input file "multiple"),
+ * valida cantidad/tamaño/tipo y guarda cada archivo dentro de
+ * assets/uploads/contactos/{accionId}. Inserta un registro por archivo en
+ * qerp_adjuntos_contacto. Lanza RuntimeException si algo no cumple los límites.
+ */
+function procesarAdjuntosContacto(PDO $pdo, array $archivos, int $accionId): void
+{
+    if (empty($archivos['name']) || $archivos['name'][0] === '') {
+        return;
+    }
+
+    $maxArchivos = 5;
+    $maxBytes = 5 * 1024 * 1024; // 5MB
+    $tiposPermitidos = [
+        'application/pdf' => 'pdf',
+        'image/jpeg'       => 'jpg',
+        'image/png'        => 'png',
+        'image/webp'       => 'webp',
+    ];
+
+    $cantidad = count($archivos['name']);
+
+    $stmtConteo = $pdo->prepare('SELECT COUNT(*) c FROM qerp_adjuntos_contacto WHERE accion_id = :id');
+    $stmtConteo->execute([':id' => $accionId]);
+    $yaExistentes = (int) $stmtConteo->fetch()['c'];
+
+    if ($yaExistentes + $cantidad > $maxArchivos) {
+        throw new RuntimeException("No se pueden adjuntar más de {$maxArchivos} archivos por contacto.");
+    }
+
+    $carpetaFs = $_SERVER['DOCUMENT_ROOT'] . QERP_URL_BASE . '/assets/uploads/contactos/' . $accionId;
+    if (!is_dir($carpetaFs)) {
+        mkdir($carpetaFs, 0755, true);
+    }
+
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $insertar = $pdo->prepare(
+        'INSERT INTO qerp_adjuntos_contacto (accion_id, nombre_original, ruta) VALUES (:accion_id, :nombre, :ruta)'
+    );
+
+    for ($i = 0; $i < $cantidad; $i++) {
+        if ($archivos['error'][$i] === UPLOAD_ERR_NO_FILE) {
+            continue;
+        }
+        if ($archivos['error'][$i] !== UPLOAD_ERR_OK) {
+            throw new RuntimeException('No se pudo subir uno de los archivos adjuntos.');
+        }
+        if ($archivos['size'][$i] > $maxBytes) {
+            throw new RuntimeException('Cada archivo adjunto debe pesar como máximo 5MB.');
+        }
+
+        $mime = finfo_file($finfo, $archivos['tmp_name'][$i]);
+        if (!isset($tiposPermitidos[$mime])) {
+            throw new RuntimeException('Solo se aceptan adjuntos en formato PDF, JPG, PNG o WEBP.');
+        }
+
+        $nombreArchivo = 'adj_' . uniqid() . '.' . $tiposPermitidos[$mime];
+        move_uploaded_file($archivos['tmp_name'][$i], $carpetaFs . '/' . $nombreArchivo);
+
+        $insertar->execute([
+            ':accion_id' => $accionId,
+            ':nombre'    => basename($archivos['name'][$i]),
+            ':ruta'      => '/assets/uploads/contactos/' . $accionId . '/' . $nombreArchivo,
+        ]);
+    }
+
+    finfo_close($finfo);
+}
+
+/**
+ * Convierte un texto ya escapado con e() a HTML aplicando un subconjunto
+ * mínimo y seguro de "markdown": **negrita** y líneas que empiezan con "- "
+ * como lista. Al operar sobre texto ya escapado, nunca interpreta HTML
+ * real que haya escrito el usuario (no hay forma de inyectar etiquetas).
+ */
+function formatoTextoLite(string $textoEscapado): string
+{
+    $lineas = explode("\n", $textoEscapado);
+    $html = '';
+    $dentroLista = false;
+
+    foreach ($lineas as $linea) {
+        if (preg_match('/^-\s+(.*)/', $linea, $m)) {
+            if (!$dentroLista) {
+                $html .= '<ul>';
+                $dentroLista = true;
+            }
+            $html .= '<li>' . $m[1] . '</li>';
+            continue;
+        }
+        if ($dentroLista) {
+            $html .= '</ul>';
+            $dentroLista = false;
+        }
+        $html .= $linea . '<br>';
+    }
+    if ($dentroLista) {
+        $html .= '</ul>';
+    }
+
+    return preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $html);
+}
+
+/**
  * Devuelve la URL de un archivo estático (CSS/JS/img) con un parámetro de
  * versión basado en su fecha de modificación, para evitar que el navegador
  * sirva una copia vieja desde caché después de cada actualización.

@@ -28,8 +28,12 @@ if (restringidoASusClientes()) {
     $params[':uid'] = $_SESSION['usuario_id'];
 }
 if ($busqueda !== '') {
-    $sql .= " AND (c.nombre LIKE :q OR c.razon_social LIKE :q OR c.mail LIKE :q OR c.cuit LIKE :q)";
-    $params[':q'] = '%' . $busqueda . '%';
+    $sql .= " AND (c.nombre LIKE :q1 OR c.razon_social LIKE :q2 OR c.mail LIKE :q3 OR c.cuit LIKE :q4)";
+    $comodin = '%' . $busqueda . '%';
+    $params[':q1'] = $comodin;
+    $params[':q2'] = $comodin;
+    $params[':q3'] = $comodin;
+    $params[':q4'] = $comodin;
 }
 if ($estadoFiltro !== '' && in_array($estadoFiltro, ['prospecto', 'activo', 'inactivo'], true)) {
     $sql .= " AND c.estado = :estado";

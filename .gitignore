@@ -1,2 +1,4 @@
 assets/uploads/clientes/*
 !assets/uploads/clientes/.gitkeep
+assets/uploads/contactos/*
+!assets/uploads/contactos/.gitkeep
