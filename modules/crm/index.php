@@ -3,7 +3,7 @@ require_once __DIR__ . '/../../config/conexion.php';
 require_once __DIR__ . '/../../includes/funciones.php';
 requerirPermiso($pdo, 'crm', 'ver');
 
-$tituloPagina = 'CRM · Acciones de contacto';
+$tituloPagina = 'Acciones';
 $eyebrowPagina = 'CRM';
 $slugSeccionActual = 'crm';
 
@@ -33,7 +33,7 @@ if (restringidoASusClientes()) {
 
 if ($vista === 'pendientes') {
     $sql .= " AND a.proximo_seguimiento IS NOT NULL AND a.proximo_seguimiento >= NOW()
-              ORDER BY a.proximo_seguimiento ASC";
+              ORDER BY a.proximo_seguimiento DESC";
 } else {
     $sql .= " ORDER BY a.fecha DESC LIMIT 200";
 }
@@ -47,13 +47,15 @@ $etiquetasCanal = [
     'whatsapp' => 'WhatsApp', 'videollamada' => 'Videollamada',
 ];
 $etiquetasTemperatura = ['frio' => 'Frío', 'tibio' => 'Tibio', 'caliente' => 'Caliente'];
+$valorPrioridad = ['baja' => 1, 'media' => 2, 'alta' => 3];
+$valorTemperatura = ['frio' => 1, 'tibio' => 2, 'caliente' => 3];
 
 include __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="card">
     <div class="card-header">
-        <h3>Acciones de contacto</h3>
+        <h3>Acciones</h3>
         <?php if ($puedeCrear): ?>
             <a href="nueva.php" class="btn btn-primary">+ Nueva actividad</a>
         <?php endif; ?>
@@ -68,38 +70,37 @@ include __DIR__ . '/../../includes/header.php';
         <a href="?vista=todas" class="btn <?= $vista === 'todas' ? 'btn-primary' : 'btn-outline' ?> btn-sm">Historial reciente</a>
     </div>
 
-    <table class="tabla-qerp">
+    <div class="tabla-responsive">
+    <?php if ($vista === 'pendientes'): ?>
+    <table class="tabla-qerp tabla-filtrable">
         <thead>
             <tr>
-                <th>Cliente</th>
-                <th>Canal</th>
-                <th>Motivo</th>
-                <th>Resultado</th>
+                <th>Fecha del próximo contacto</th>
+                <th>Hora</th>
                 <th>Prioridad</th>
-                <th>Temp.</th>
-                <th>Fecha</th>
-                <th>Seguimiento</th>
-                <th>Registrado por</th>
-                <th></th>
+                <th>Cliente</th>
+                <th>Acción del próximo paso</th>
+                <th>Temperatura</th>
+                <th class="th-acciones"></th>
             </tr>
         </thead>
         <tbody>
             <?php foreach ($acciones as $a): ?>
+            <?php $ts = $a['proximo_seguimiento'] ? strtotime($a['proximo_seguimiento']) : 0; ?>
             <tr>
-                <td><a href="../clientes/ver.php?id=<?= (int) $a['cliente_id'] ?>"><?= e($a['cliente_nombre']) ?></a></td>
-                <td><?= e($etiquetasCanal[$a['canal']] ?? $a['canal']) ?></td>
-                <td><?= e($a['motivo_nombre'] ?: '—') ?></td>
-                <td><?= e($a['resultado_nombre'] ?: '—') ?></td>
-                <td>
+                <td data-valor="<?= $ts ?>"><?= $ts ? e(date('d/m/Y', $ts)) : '—' ?></td>
+                <td><?= $ts ? e(date('H:i', $ts)) : '—' ?></td>
+                <td data-valor="<?= $a['prioridad'] ? $valorPrioridad[$a['prioridad']] : 0 ?>">
                     <?php if ($a['prioridad']): ?>
                         <span class="badge badge-<?= $a['prioridad'] === 'alta' ? 'inactivo' : ($a['prioridad'] === 'media' ? 'prospecto' : 'activo') ?>"><?= ucfirst(e($a['prioridad'])) ?></span>
                     <?php else: ?>—<?php endif; ?>
                 </td>
-                <td><?= $a['temperatura'] ? e($etiquetasTemperatura[$a['temperatura']]) : '—' ?></td>
-                <td><?= e(date('d/m/Y H:i', strtotime($a['fecha']))) ?></td>
-                <td><?= $a['proximo_seguimiento'] ? e(date('d/m/Y H:i', strtotime($a['proximo_seguimiento']))) : '—' ?></td>
-                <td><?= e($a['us_nombre'] . ' ' . $a['us_apellido']) ?></td>
-                <td style="text-align:right;white-space:nowrap;">
+                <td><a href="../clientes/ver.php?id=<?= (int) $a['cliente_id'] ?>"><?= e($a['cliente_nombre']) ?></a></td>
+                <td><?= e($a['accion_siguiente'] ?: '—') ?></td>
+                <td data-valor="<?= $a['temperatura'] ? $valorTemperatura[$a['temperatura']] : 0 ?>">
+                    <?= $a['temperatura'] ? e($etiquetasTemperatura[$a['temperatura']]) : '—' ?>
+                </td>
+                <td class="th-acciones" style="text-align:right;white-space:nowrap;">
                     <?php if ($puedeEditar): ?>
                         <a href="editar.php?id=<?= (int) $a['id'] ?>" class="btn btn-outline btn-sm">Editar</a>
                     <?php endif; ?>
@@ -114,12 +115,67 @@ include __DIR__ . '/../../includes/header.php';
             </tr>
             <?php endforeach; ?>
             <?php if (!$acciones): ?>
-                <tr><td colspan="10" style="color:var(--muted);">
-                    <?= $vista === 'pendientes' ? 'No hay seguimientos pendientes.' : 'Todavía no hay acciones registradas.' ?>
-                </td></tr>
+                <tr><td colspan="7" style="color:var(--muted);">No hay seguimientos pendientes.</td></tr>
             <?php endif; ?>
         </tbody>
     </table>
+    <?php else: ?>
+    <table class="tabla-qerp tabla-filtrable">
+        <thead>
+            <tr>
+                <th>Cliente</th>
+                <th>Canal</th>
+                <th>Motivo</th>
+                <th>Resultado</th>
+                <th>Prioridad</th>
+                <th>Temp.</th>
+                <th>Fecha</th>
+                <th>Seguimiento</th>
+                <th>Registrado por</th>
+                <th class="th-acciones"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($acciones as $a): ?>
+            <tr>
+                <td><a href="../clientes/ver.php?id=<?= (int) $a['cliente_id'] ?>"><?= e($a['cliente_nombre']) ?></a></td>
+                <td><?= e($etiquetasCanal[$a['canal']] ?? $a['canal']) ?></td>
+                <td><?= e($a['motivo_nombre'] ?: '—') ?></td>
+                <td><?= e($a['resultado_nombre'] ?: '—') ?></td>
+                <td data-valor="<?= $a['prioridad'] ? $valorPrioridad[$a['prioridad']] : 0 ?>">
+                    <?php if ($a['prioridad']): ?>
+                        <span class="badge badge-<?= $a['prioridad'] === 'alta' ? 'inactivo' : ($a['prioridad'] === 'media' ? 'prospecto' : 'activo') ?>"><?= ucfirst(e($a['prioridad'])) ?></span>
+                    <?php else: ?>—<?php endif; ?>
+                </td>
+                <td data-valor="<?= $a['temperatura'] ? $valorTemperatura[$a['temperatura']] : 0 ?>">
+                    <?= $a['temperatura'] ? e($etiquetasTemperatura[$a['temperatura']]) : '—' ?>
+                </td>
+                <td data-valor="<?= strtotime($a['fecha']) ?>"><?= e(date('d/m/Y H:i', strtotime($a['fecha']))) ?></td>
+                <td data-valor="<?= $a['proximo_seguimiento'] ? strtotime($a['proximo_seguimiento']) : 0 ?>">
+                    <?= $a['proximo_seguimiento'] ? e(date('d/m/Y H:i', strtotime($a['proximo_seguimiento']))) : '—' ?>
+                </td>
+                <td><?= e($a['us_nombre'] . ' ' . $a['us_apellido']) ?></td>
+                <td class="th-acciones" style="text-align:right;white-space:nowrap;">
+                    <?php if ($puedeEditar): ?>
+                        <a href="editar.php?id=<?= (int) $a['id'] ?>" class="btn btn-outline btn-sm">Editar</a>
+                    <?php endif; ?>
+                    <?php if ($puedeBorrar): ?>
+                        <form method="post" action="eliminar.php" style="display:inline;"
+                              onsubmit="return confirm('¿Eliminar esta acción de contacto?');">
+                            <input type="hidden" name="id" value="<?= (int) $a['id'] ?>">
+                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                        </form>
+                    <?php endif; ?>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+            <?php if (!$acciones): ?>
+                <tr><td colspan="10" style="color:var(--muted);">Todavía no hay acciones registradas.</td></tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+    <?php endif; ?>
+    </div>
 </div>
 
 <?php include __DIR__ . '/../../includes/footer.php'; ?>

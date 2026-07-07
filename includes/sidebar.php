@@ -22,7 +22,7 @@ $grupos = [];
 foreach ($secciones as $s) {
     $grupos[$s['grupo'] ?? 'General'][] = $s;
 }
-$ordenGrupos = ['CRM', 'Administración'];
+$ordenGrupos = ['CRM', 'Administración', 'Configuración'];
 foreach (array_keys($grupos) as $g) {
     if (!in_array($g, $ordenGrupos, true)) {
         $ordenGrupos[] = $g;

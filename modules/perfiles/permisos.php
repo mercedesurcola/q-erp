@@ -77,6 +77,7 @@ include __DIR__ . '/../../includes/header.php';
     </p>
 
     <form method="post">
+        <div class="tabla-responsive">
         <table class="tabla-qerp">
             <thead>
                 <tr>
@@ -104,6 +105,7 @@ include __DIR__ . '/../../includes/header.php';
                 <?php endforeach; ?>
             </tbody>
         </table>
+        </div>
 
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button type="submit" class="btn btn-primary">Guardar permisos</button>

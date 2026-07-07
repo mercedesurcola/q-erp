@@ -46,8 +46,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$datos['cliente_id']) $errores[] = 'Elegí un cliente del buscador.';
     if (!isset($canales[$datos['canal']])) $errores[] = 'Elegí un canal de contacto válido.';
-    if ($datos['accion_siguiente'] !== '' && $datos['fecha_proximo'] === '') {
-        $errores[] = 'Si cargás una acción de próximo paso, la fecha es obligatoria.';
+    if ($datos['accion_siguiente'] === '') {
+        $errores[] = 'La acción del próximo paso es obligatoria: ningún contacto puede quedar sin definir qué sigue.';
+    }
+    if ($datos['fecha_proximo'] === '') {
+        $errores[] = 'La fecha del próximo contacto es obligatoria.';
     }
     if ($datos['motivo_id'] !== '' && !in_array((int) $datos['motivo_id'], array_column($motivos, 'id'), true)) {
         $errores[] = 'El motivo seleccionado no es válido.';
@@ -197,11 +200,11 @@ include __DIR__ . '/../../includes/header.php';
             <div class="campo">
                 <label for="accion_siguiente">Acción del próximo paso</label>
                 <input type="text" id="accion_siguiente" name="accion_siguiente" value="<?= e($datos['accion_siguiente']) ?>"
-                       placeholder="Ej: Llamar para presupuestar, enviar folleto...">
+                       placeholder="Ej: Llamar para presupuestar, enviar folleto..." required>
             </div>
             <div class="campo">
                 <label for="fecha_proximo">Fecha del próximo contacto</label>
-                <input type="date" id="fecha_proximo" name="fecha_proximo" value="<?= e($datos['fecha_proximo']) ?>">
+                <input type="date" id="fecha_proximo" name="fecha_proximo" value="<?= e($datos['fecha_proximo']) ?>" required>
             </div>
             <div class="campo">
                 <label for="hora_proximo">Hora (opcional)</label>

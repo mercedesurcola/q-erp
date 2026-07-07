@@ -147,9 +147,9 @@ INSERT INTO qerp_secciones (nombre, slug, icono, grupo, orden) VALUES
   ('Usuarios', 'usuarios', 'users', 'Administración', 1),
   ('Perfiles', 'perfiles', 'shield', 'Administración', 2),
   ('Clientes', 'clientes', 'briefcase', 'CRM', 3),
-  ('CRM - Acciones de contacto', 'crm', 'phone-call', 'CRM', 4),
-  ('Motivos de contacto', 'motivos-contacto', 'tag', 'Administración', 5),
-  ('Resultados de contacto', 'resultados-contacto', 'flag', 'Administración', 6);
+  ('Acciones', 'crm', 'phone-call', 'CRM', 4),
+  ('Motivos de contacto', 'motivos-contacto', 'tag', 'Configuración', 5),
+  ('Resultados de contacto', 'resultados-contacto', 'flag', 'Configuración', 6);
 
 INSERT INTO qerp_motivos_contacto (nombre) VALUES
   ('Primer contacto / Prospección'),

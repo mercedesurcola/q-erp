@@ -102,6 +102,7 @@ include __DIR__ . '/../../includes/header.php';
     <?php if (!$acciones): ?>
         <p style="color:var(--muted);">Todavía no hay acciones de contacto registradas para este cliente.</p>
     <?php else: ?>
+        <div class="tabla-responsive">
         <table class="tabla-qerp">
             <thead>
                 <tr>
@@ -137,6 +138,7 @@ include __DIR__ . '/../../includes/header.php';
                 <?php endforeach; ?>
             </tbody>
         </table>
+        </div>
     <?php endif; ?>
 </div>
 <?php endif; ?>

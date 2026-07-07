@@ -35,6 +35,7 @@ include __DIR__ . '/../../includes/header.php';
         <div class="alerta alerta-error"><?= e($error) ?></div>
     <?php endif; ?>
 
+    <div class="tabla-responsive">
     <table class="tabla-qerp">
         <thead>
             <tr>
@@ -71,6 +72,7 @@ include __DIR__ . '/../../includes/header.php';
             <?php endif; ?>
         </tbody>
     </table>
+    </div>
 </div>
 
 <?php include __DIR__ . '/../../includes/footer.php'; ?>

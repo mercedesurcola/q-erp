@@ -71,6 +71,7 @@ include __DIR__ . '/../../includes/header.php';
         <button type="submit" class="btn btn-outline">Filtrar</button>
     </form>
 
+    <div class="tabla-responsive">
     <table class="tabla-qerp">
         <thead>
             <tr>
@@ -124,6 +125,7 @@ include __DIR__ . '/../../includes/header.php';
             <?php endif; ?>
         </tbody>
     </table>
+    </div>
 </div>
 
 <?php include __DIR__ . '/../../includes/footer.php'; ?>

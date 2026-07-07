@@ -443,7 +443,7 @@ input:focus, select:focus, textarea:focus {
   transition: opacity .15s, transform .15s;
 }
 
-.semaforo-frio     { background: #3B82F6; }
+.semaforo-frio     { background: #22C55E; }
 .semaforo-tibio    { background: #F59E0B; }
 .semaforo-caliente { background: #EF4444; }
 
@@ -490,6 +490,29 @@ table.tabla-qerp {
 }
 
 .tabla-qerp tr:hover td { background: var(--bg); }
+
+.tabla-responsive { overflow-x: auto; }
+
+/* ---------- Grillas con filtro y orden (.tabla-filtrable) ---------- */
+.th-ordenable { cursor: pointer; user-select: none; white-space: nowrap; }
+.th-ordenable::after { content: '↕'; margin-left: 4px; opacity: 0.35; font-size: 11px; }
+.th-ordenable.orden-asc::after { content: '↑'; opacity: 1; color: var(--accent); }
+.th-ordenable.orden-desc::after { content: '↓'; opacity: 1; color: var(--accent); }
+
+.fila-filtros th { padding: 6px 10px; border-bottom: 1px solid var(--border); background: var(--bg); }
+
+.fila-filtros input {
+  width: 100%;
+  padding: 5px 8px;
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--ink);
+  background: #fff;
+}
 
 /* ---------- Badges de estado ---------- */
 .badge {
@@ -547,9 +570,33 @@ table.tabla-qerp {
   text-align: center;
 }
 
+/* ---------- Botón hamburguesa y overlay (mobile) ---------- */
+.menu-toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 13, 26, 0.5);
+  z-index: 90;
+}
+
 @media (max-width: 768px) {
-  .qerp-sidebar { transform: translateX(-100%); transition: transform .2s; }
+  .qerp-sidebar { transform: translateX(-100%); transition: transform .2s; z-index: 100; }
   .qerp-sidebar.abierto { transform: translateX(0); }
   .qerp-main { margin-left: 0; }
   .fila-form { flex-direction: column; }
+  .menu-toggle { display: flex; }
+  .qerp-header { gap: 12px; }
+  .card-header { flex-wrap: wrap; gap: 10px; }
 }
