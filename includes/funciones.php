@@ -94,6 +94,18 @@ function requerirPermiso(PDO $pdo, string $slugSeccion, string $accion = 'ver'):
 }
 
 /**
+ * Devuelve la URL de un archivo estático (CSS/JS/img) con un parámetro de
+ * versión basado en su fecha de modificación, para evitar que el navegador
+ * sirva una copia vieja desde caché después de cada actualización.
+ */
+function asset(string $ruta): string
+{
+    $rutaFs = $_SERVER['DOCUMENT_ROOT'] . QERP_URL_BASE . $ruta;
+    $version = file_exists($rutaFs) ? filemtime($rutaFs) : time();
+    return QERP_URL_BASE . $ruta . '?v=' . $version;
+}
+
+/**
  * Sanitiza un string para salida segura en HTML.
  */
 function e(?string $valor): string

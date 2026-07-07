@@ -18,7 +18,7 @@ unset($_SESSION['login_error']);
     <title>Ingresar · CUSOL</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<?= QERP_URL_BASE ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?= asset('/assets/css/style.css') ?>">
 </head>
 <body>
     <div class="login-shell">
@@ -46,6 +46,6 @@ unset($_SESSION['login_error']);
             </form>
         </div>
     </div>
-    <script src="<?= QERP_URL_BASE ?>/assets/js/main.js"></script>
+    <script src="<?= asset('/assets/js/main.js') ?>"></script>
 </body>
 </html>
