@@ -94,6 +94,87 @@ function requerirPermiso(PDO $pdo, string $slugSeccion, string $accion = 'ver'):
 }
 
 /**
+ * true si el perfil del usuario logueado está limitado a ver
+ * únicamente los clientes donde él figura como responsable.
+ */
+function restringidoASusClientes(): bool
+{
+    return !empty($_SESSION['solo_ve_sus_clientes']);
+}
+
+/**
+ * Corta la ejecución con 403 si el usuario está restringido a "sus"
+ * clientes y el cliente pasado no le pertenece (no es su responsable).
+ */
+function requerirAccesoCliente(?int $usuarioAsignado): void
+{
+    if (!restringidoASusClientes()) {
+        return;
+    }
+    if ($usuarioAsignado !== (int) $_SESSION['usuario_id']) {
+        http_response_code(403);
+        include __DIR__ . '/403.php';
+        exit;
+    }
+}
+
+/**
+ * Recibe una entrada de $_FILES, valida que sea una imagen y la guarda
+ * redimensionada (máximo 400px de lado) dentro de assets/uploads/clientes.
+ * Devuelve la ruta relativa a guardar en la base, o null si no se subió nada.
+ * Lanza RuntimeException si el archivo no es una imagen válida.
+ */
+function procesarImagenCliente(array $archivo): ?string
+{
+    if (!isset($archivo['error']) || $archivo['error'] === UPLOAD_ERR_NO_FILE) {
+        return null;
+    }
+    if ($archivo['error'] !== UPLOAD_ERR_OK) {
+        throw new RuntimeException('No se pudo subir la imagen.');
+    }
+
+    $info = getimagesize($archivo['tmp_name']);
+    if ($info === false) {
+        throw new RuntimeException('El archivo no es una imagen válida.');
+    }
+
+    [$anchoOriginal, $altoOriginal, $tipo] = $info;
+
+    $origen = match ($tipo) {
+        IMAGETYPE_JPEG => imagecreatefromjpeg($archivo['tmp_name']),
+        IMAGETYPE_PNG  => imagecreatefrompng($archivo['tmp_name']),
+        IMAGETYPE_WEBP => imagecreatefromwebp($archivo['tmp_name']),
+        default        => null,
+    };
+    if (!$origen) {
+        throw new RuntimeException('Formato de imagen no soportado (usá JPG, PNG o WEBP).');
+    }
+
+    $maxLado = 400;
+    $escala = min(1, $maxLado / max($anchoOriginal, $altoOriginal));
+    $anchoFinal = max(1, (int) round($anchoOriginal * $escala));
+    $altoFinal  = max(1, (int) round($altoOriginal * $escala));
+
+    $destino = imagecreatetruecolor($anchoFinal, $altoFinal);
+    $blanco = imagecolorallocate($destino, 255, 255, 255);
+    imagefill($destino, 0, 0, $blanco);
+    imagecopyresampled($destino, $origen, 0, 0, 0, 0, $anchoFinal, $altoFinal, $anchoOriginal, $altoOriginal);
+
+    $carpetaFs = $_SERVER['DOCUMENT_ROOT'] . QERP_URL_BASE . '/assets/uploads/clientes';
+    if (!is_dir($carpetaFs)) {
+        mkdir($carpetaFs, 0755, true);
+    }
+
+    $nombreArchivo = 'cliente_' . uniqid() . '.jpg';
+    imagejpeg($destino, $carpetaFs . '/' . $nombreArchivo, 82);
+
+    imagedestroy($origen);
+    imagedestroy($destino);
+
+    return '/assets/uploads/clientes/' . $nombreArchivo;
+}
+
+/**
  * Devuelve la URL de un archivo estático (CSS/JS/img) con un parámetro de
  * versión basado en su fecha de modificación, para evitar que el navegador
  * sirva una copia vieja desde caché después de cada actualización.

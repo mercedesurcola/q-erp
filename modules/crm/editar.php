@@ -9,7 +9,7 @@ $slugSeccionActual = 'crm';
 
 $id = (int) ($_GET['id'] ?? 0);
 $stmt = $pdo->prepare(
-    "SELECT a.*, c.razon_social FROM qerp_acciones_contacto a
+    "SELECT a.*, c.nombre AS cliente_nombre, c.usuario_asignado FROM qerp_acciones_contacto a
      INNER JOIN qerp_clientes c ON c.id = a.cliente_id WHERE a.id = :id"
 );
 $stmt->execute([':id' => $id]);
@@ -19,6 +19,8 @@ if (!$accion) {
     header('Location: index.php');
     exit;
 }
+
+requerirAccesoCliente($accion['usuario_asignado'] !== null ? (int) $accion['usuario_asignado'] : null);
 
 $errores = [];
 $datos = [
@@ -57,7 +59,7 @@ include __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="card" style="max-width:560px;">
-    <div class="card-header"><h3>Editar contacto — <?= e($accion['razon_social']) ?></h3></div>
+    <div class="card-header"><h3>Editar contacto — <?= e($accion['cliente_nombre']) ?></h3></div>
 
     <?php foreach ($errores as $err): ?>
         <div class="alerta alerta-error"><?= e($err) ?></div>

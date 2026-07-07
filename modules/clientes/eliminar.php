@@ -10,6 +10,17 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $id = (int) ($_POST['id'] ?? 0);
 
+$stmt = $pdo->prepare('SELECT usuario_asignado FROM qerp_clientes WHERE id = :id');
+$stmt->execute([':id' => $id]);
+$cliente = $stmt->fetch();
+
+if (!$cliente) {
+    header('Location: index.php');
+    exit;
+}
+
+requerirAccesoCliente($cliente['usuario_asignado'] !== null ? (int) $cliente['usuario_asignado'] : null);
+
 $stmt = $pdo->prepare('DELETE FROM qerp_clientes WHERE id = :id');
 $stmt->execute([':id' => $id]);
 

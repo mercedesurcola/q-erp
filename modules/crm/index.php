@@ -15,19 +15,28 @@ unset($_SESSION['flash_ok']);
 
 $vista = $_GET['vista'] ?? 'pendientes'; // pendientes | todas
 
-$sql = "SELECT a.*, c.razon_social, u.nombre AS us_nombre, u.apellido AS us_apellido
+$sql = "SELECT a.*, c.nombre AS cliente_nombre, u.nombre AS us_nombre, u.apellido AS us_apellido
         FROM qerp_acciones_contacto a
         INNER JOIN qerp_clientes c ON c.id = a.cliente_id
-        INNER JOIN qerp_usuarios u ON u.id = a.usuario_id";
+        INNER JOIN qerp_usuarios u ON u.id = a.usuario_id
+        WHERE 1=1";
+$params = [];
+
+if (restringidoASusClientes()) {
+    $sql .= " AND c.usuario_asignado = :uid";
+    $params[':uid'] = $_SESSION['usuario_id'];
+}
 
 if ($vista === 'pendientes') {
-    $sql .= " WHERE a.proximo_seguimiento IS NOT NULL AND a.proximo_seguimiento >= NOW()
+    $sql .= " AND a.proximo_seguimiento IS NOT NULL AND a.proximo_seguimiento >= NOW()
               ORDER BY a.proximo_seguimiento ASC";
 } else {
     $sql .= " ORDER BY a.fecha DESC LIMIT 200";
 }
 
-$acciones = $pdo->query($sql)->fetchAll();
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+$acciones = $stmt->fetchAll();
 
 $etiquetasTipo = [
     'llamada' => 'Llamada', 'mail' => 'Correo', 'reunion' => 'Reunión',
@@ -66,7 +75,7 @@ include __DIR__ . '/../../includes/header.php';
         <tbody>
             <?php foreach ($acciones as $a): ?>
             <tr>
-                <td><a href="../clientes/ver.php?id=<?= (int) $a['cliente_id'] ?>"><?= e($a['razon_social']) ?></a></td>
+                <td><a href="../clientes/ver.php?id=<?= (int) $a['cliente_id'] ?>"><?= e($a['cliente_nombre']) ?></a></td>
                 <td><?= e($etiquetasTipo[$a['tipo']] ?? $a['tipo']) ?></td>
                 <td><?= e($a['detalle'] ?: '—') ?></td>
                 <td><?= e(date('d/m/Y H:i', strtotime($a['fecha']))) ?></td>

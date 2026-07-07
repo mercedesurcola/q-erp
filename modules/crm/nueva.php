@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../includes/funciones.php';
 requerirPermiso($pdo, 'crm', 'crear');
 
 $clienteId = (int) ($_GET['cliente_id'] ?? $_POST['cliente_id'] ?? 0);
-$stmt = $pdo->prepare('SELECT id, razon_social FROM qerp_clientes WHERE id = :id');
+$stmt = $pdo->prepare('SELECT id, nombre, usuario_asignado FROM qerp_clientes WHERE id = :id');
 $stmt->execute([':id' => $clienteId]);
 $cliente = $stmt->fetch();
 
@@ -13,8 +13,10 @@ if (!$cliente) {
     exit;
 }
 
+requerirAccesoCliente($cliente['usuario_asignado'] !== null ? (int) $cliente['usuario_asignado'] : null);
+
 $tituloPagina = 'Registrar contacto';
-$eyebrowPagina = 'CRM · ' . $cliente['razon_social'];
+$eyebrowPagina = 'CRM · ' . $cliente['nombre'];
 $slugSeccionActual = 'crm';
 
 $errores = [];
@@ -51,7 +53,7 @@ include __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="card" style="max-width:560px;">
-    <div class="card-header"><h3>Registrar contacto — <?= e($cliente['razon_social']) ?></h3></div>
+    <div class="card-header"><h3>Registrar contacto — <?= e($cliente['nombre']) ?></h3></div>
 
     <?php foreach ($errores as $err): ?>
         <div class="alerta alerta-error"><?= e($err) ?></div>

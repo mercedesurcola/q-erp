@@ -17,7 +17,9 @@ if (!$cliente) {
     exit;
 }
 
-$tituloPagina = $cliente['razon_social'];
+requerirAccesoCliente($cliente['usuario_asignado'] !== null ? (int) $cliente['usuario_asignado'] : null);
+
+$tituloPagina = $cliente['nombre'];
 $eyebrowPagina = 'CRM · Ficha de cliente';
 $slugSeccionActual = 'clientes';
 
@@ -54,13 +56,22 @@ include __DIR__ . '/../../includes/header.php';
 
 <div class="card">
     <div class="card-header">
-        <h3>Datos del cliente</h3>
+        <div style="display:flex; align-items:center; gap:14px;">
+            <?php if ($cliente['imagen']): ?>
+                <img src="<?= QERP_URL_BASE . e($cliente['imagen']) ?>" alt="" class="miniatura-cliente miniatura-cliente-lg">
+            <?php endif; ?>
+            <div>
+                <h3 style="margin-bottom:2px;">Datos del cliente</h3>
+                <span style="color:var(--muted); font-size:12.5px;">Código #<?= str_pad((string) $cliente['id'], 5, '0', STR_PAD_LEFT) ?></span>
+            </div>
+        </div>
         <div>
             <span class="badge badge-<?= e($cliente['estado']) ?>"><?= ucfirst(e($cliente['estado'])) ?></span>
             <a href="editar.php?id=<?= $id ?>" class="btn btn-outline btn-sm" style="margin-left:8px;">Editar</a>
         </div>
     </div>
     <div class="fila-form">
+        <div><strong>Razón social:</strong> <?= e($cliente['razon_social'] ?: '—') ?></div>
         <div><strong>CUIT:</strong> <?= e($cliente['cuit'] ?: '—') ?></div>
         <div><strong>Correo:</strong> <?= e($cliente['mail'] ?: '—') ?></div>
         <div><strong>Teléfono:</strong> <?= e($cliente['telefono'] ?: '—') ?></div>

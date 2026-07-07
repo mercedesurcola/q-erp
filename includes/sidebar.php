@@ -15,20 +15,36 @@ $iconos = [
 ];
 
 $slugActual = $slugSeccionActual ?? '';
+
+$grupos = [];
+foreach ($secciones as $s) {
+    $grupos[$s['grupo'] ?? 'General'][] = $s;
+}
+$ordenGrupos = ['CRM', 'Administración'];
+foreach (array_keys($grupos) as $g) {
+    if (!in_array($g, $ordenGrupos, true)) {
+        $ordenGrupos[] = $g;
+    }
+}
 ?>
 <aside class="qerp-sidebar" id="qerpSidebar">
     <div class="brand">
         <img src="<?= QERP_URL_BASE ?>/assets/img/logo-cusol.png" alt="CUSOL" class="logo-sidebar">
     </div>
     <nav class="qerp-nav">
-        <div class="seccion-titulo">CRM</div>
-        <?php foreach ($secciones as $s): ?>
-            <?php if (!tienePermiso($pdo, $s['slug'], 'ver')) continue; ?>
-            <a href="<?= QERP_URL_BASE ?>/modules/<?= e($s['slug']) ?>/index.php"
-               class="<?= $slugActual === $s['slug'] ? 'activo' : '' ?>">
-                <?= $iconos[$s['icono']] ?? '' ?>
-                <?= e($s['nombre']) ?>
-            </a>
+        <?php foreach ($ordenGrupos as $grupo): ?>
+            <?php
+                $items = array_filter($grupos[$grupo] ?? [], fn($s) => tienePermiso($pdo, $s['slug'], 'ver'));
+                if (!$items) continue;
+            ?>
+            <div class="seccion-titulo"><?= e($grupo) ?></div>
+            <?php foreach ($items as $s): ?>
+                <a href="<?= QERP_URL_BASE ?>/modules/<?= e($s['slug']) ?>/index.php"
+                   class="<?= $slugActual === $s['slug'] ? 'activo' : '' ?>">
+                    <?= $iconos[$s['icono']] ?? '' ?>
+                    <?= e($s['nombre']) ?>
+                </a>
+            <?php endforeach; ?>
         <?php endforeach; ?>
     </nav>
     <div class="usuario-box">

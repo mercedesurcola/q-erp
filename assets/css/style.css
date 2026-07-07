@@ -319,6 +319,26 @@ input:focus, select:focus, textarea:focus {
 .fila-form { display: flex; gap: 16px; }
 .fila-form .campo { flex: 1; }
 
+/* ---------- Imagen de cliente ---------- */
+.miniatura-cliente {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #fff;
+  border: 1px solid var(--border);
+  display: block;
+}
+
+.miniatura-cliente-sm { width: 32px; height: 32px; }
+
+.miniatura-cliente-lg { width: 64px; height: 64px; border-radius: 10px; }
+
+.miniatura-vacia {
+  background: var(--bg);
+  border: 1px dashed var(--border);
+}
+
 /* ---------- Tablas ---------- */
 table.tabla-qerp {
   width: 100%;

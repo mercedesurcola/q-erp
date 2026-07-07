@@ -18,7 +18,7 @@ if ($mail === '' || $password === '') {
 
 $stmt = $pdo->prepare(
     "SELECT u.id, u.nombre, u.apellido, u.mail, u.password, u.activo,
-            u.perfil_id, p.nombre AS perfil_nombre
+            u.perfil_id, p.nombre AS perfil_nombre, p.solo_ve_sus_clientes
      FROM qerp_usuarios u
      LEFT JOIN qerp_perfiles p ON p.id = u.perfil_id
      WHERE u.mail = :mail
@@ -48,6 +48,7 @@ $_SESSION['usuario_apellido'] = $usuario['apellido'];
 $_SESSION['usuario_mail']     = $usuario['mail'];
 $_SESSION['perfil_id']        = $usuario['perfil_id'];
 $_SESSION['perfil_nombre']    = $usuario['perfil_nombre'] ?? 'Sin perfil';
+$_SESSION['solo_ve_sus_clientes'] = (bool) $usuario['solo_ve_sus_clientes'];
 
 $pdo->prepare('UPDATE qerp_usuarios SET ultimo_acceso = NOW() WHERE id = :id')
     ->execute([':id' => $usuario['id']]);

@@ -13,18 +13,20 @@ CREATE TABLE qerp_perfiles (
   nombre VARCHAR(50) NOT NULL,
   descripcion VARCHAR(255) DEFAULT NULL,
   activo TINYINT(1) NOT NULL DEFAULT 1,
+  solo_ve_sus_clientes TINYINT(1) NOT NULL DEFAULT 0,
   creado_en DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ---------------------------------------------------------
 -- Secciones del sistema (módulos): usuarios, clientes, crm...
--- Sirve para armar el menú y la matriz de permisos.
+-- Sirve para armar el menú (agrupado por "grupo") y la matriz de permisos.
 -- ---------------------------------------------------------
 CREATE TABLE qerp_secciones (
   id INT PRIMARY KEY AUTO_INCREMENT,
   nombre VARCHAR(100) NOT NULL,
   slug VARCHAR(100) NOT NULL UNIQUE,
   icono VARCHAR(50) DEFAULT NULL,
+  grupo VARCHAR(50) NOT NULL DEFAULT 'General',
   orden INT DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -64,7 +66,8 @@ CREATE TABLE qerp_usuarios (
 -- ---------------------------------------------------------
 CREATE TABLE qerp_clientes (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  razon_social VARCHAR(150) NOT NULL,
+  nombre VARCHAR(150) NOT NULL,
+  razon_social VARCHAR(150) DEFAULT NULL,
   nombre_fantasia VARCHAR(150) DEFAULT NULL,
   cuit VARCHAR(20) DEFAULT NULL,
   mail VARCHAR(150) DEFAULT NULL,
@@ -76,6 +79,7 @@ CREATE TABLE qerp_clientes (
   origen VARCHAR(100) DEFAULT NULL,
   usuario_asignado INT DEFAULT NULL,
   notas TEXT DEFAULT NULL,
+  imagen VARCHAR(255) DEFAULT NULL,
   creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
   actualizado_en DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (usuario_asignado) REFERENCES qerp_usuarios(id) ON DELETE SET NULL
@@ -105,11 +109,11 @@ INSERT INTO qerp_perfiles (nombre, descripcion) VALUES
   ('Administrador', 'Acceso total al sistema'),
   ('Vendedor', 'Gestión de clientes y CRM');
 
-INSERT INTO qerp_secciones (nombre, slug, icono, orden) VALUES
-  ('Usuarios', 'usuarios', 'users', 1),
-  ('Perfiles', 'perfiles', 'shield', 2),
-  ('Clientes', 'clientes', 'briefcase', 3),
-  ('CRM - Acciones de contacto', 'crm', 'phone-call', 4);
+INSERT INTO qerp_secciones (nombre, slug, icono, grupo, orden) VALUES
+  ('Usuarios', 'usuarios', 'users', 'Administración', 1),
+  ('Perfiles', 'perfiles', 'shield', 'Administración', 2),
+  ('Clientes', 'clientes', 'briefcase', 'CRM', 3),
+  ('CRM - Acciones de contacto', 'crm', 'phone-call', 'CRM', 4);
 
 -- Administrador: acceso total a todas las secciones
 INSERT INTO qerp_perfil_permisos (perfil_id, seccion_id, ver, crear, editar, eliminar)

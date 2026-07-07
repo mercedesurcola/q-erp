@@ -11,9 +11,9 @@ $usuarios = $pdo->query("SELECT id, nombre, apellido FROM qerp_usuarios WHERE ac
 
 $errores = [];
 $datos = [
-    'razon_social' => '', 'nombre_fantasia' => '', 'cuit' => '', 'mail' => '',
+    'nombre' => '', 'razon_social' => '', 'nombre_fantasia' => '', 'cuit' => '', 'mail' => '',
     'telefono' => '', 'direccion' => '', 'localidad' => '', 'provincia' => '',
-    'estado' => 'prospecto', 'origen' => '', 'usuario_asignado' => '', 'notas' => '',
+    'estado' => 'prospecto', 'origen' => '', 'usuario_asignado' => (string) $_SESSION['usuario_id'], 'notas' => '',
 ];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -21,20 +21,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $datos[$campo] = trim($_POST[$campo] ?? '');
     }
 
-    if ($datos['razon_social'] === '') $errores[] = 'La razón social es obligatoria.';
+    if ($datos['nombre'] === '') $errores[] = 'El nombre es obligatorio.';
     if ($datos['mail'] !== '' && !filter_var($datos['mail'], FILTER_VALIDATE_EMAIL)) {
         $errores[] = 'El correo no es válido.';
     }
 
+    $imagen = null;
+    if (!$errores) {
+        try {
+            $imagen = procesarImagenCliente($_FILES['imagen'] ?? []);
+        } catch (RuntimeException $e) {
+            $errores[] = $e->getMessage();
+        }
+    }
+
     if (!$errores) {
         $stmt = $pdo->prepare(
-            'INSERT INTO qerp_clientes (razon_social, nombre_fantasia, cuit, mail, telefono, direccion,
-                                    localidad, provincia, estado, origen, usuario_asignado, notas)
-             VALUES (:razon_social, :nombre_fantasia, :cuit, :mail, :telefono, :direccion,
-                     :localidad, :provincia, :estado, :origen, :usuario_asignado, :notas)'
+            'INSERT INTO qerp_clientes (nombre, razon_social, nombre_fantasia, cuit, mail, telefono, direccion,
+                                    localidad, provincia, estado, origen, usuario_asignado, notas, imagen)
+             VALUES (:nombre, :razon_social, :nombre_fantasia, :cuit, :mail, :telefono, :direccion,
+                     :localidad, :provincia, :estado, :origen, :usuario_asignado, :notas, :imagen)'
         );
         $stmt->execute([
-            ':razon_social'     => $datos['razon_social'],
+            ':nombre'           => $datos['nombre'],
+            ':razon_social'     => $datos['razon_social'] ?: null,
             ':nombre_fantasia'  => $datos['nombre_fantasia'] ?: null,
             ':cuit'             => $datos['cuit'] ?: null,
             ':mail'             => $datos['mail'] ?: null,
@@ -46,6 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':origen'           => $datos['origen'] ?: null,
             ':usuario_asignado' => $datos['usuario_asignado'] ?: null,
             ':notas'            => $datos['notas'] ?: null,
+            ':imagen'           => $imagen,
         ]);
         $_SESSION['flash_ok'] = 'Cliente creado correctamente.';
         header('Location: index.php');
@@ -63,15 +74,25 @@ include __DIR__ . '/../../includes/header.php';
         <div class="alerta alerta-error"><?= e($err) ?></div>
     <?php endforeach; ?>
 
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         <div class="fila-form">
             <div class="campo">
-                <label for="razon_social">Razón social</label>
-                <input type="text" id="razon_social" name="razon_social" value="<?= e($datos['razon_social']) ?>" required>
+                <label for="nombre">Nombre</label>
+                <input type="text" id="nombre" name="nombre" value="<?= e($datos['nombre']) ?>" required>
             </div>
+            <div class="campo">
+                <label for="razon_social">Razón social</label>
+                <input type="text" id="razon_social" name="razon_social" value="<?= e($datos['razon_social']) ?>">
+            </div>
+        </div>
+        <div class="fila-form">
             <div class="campo">
                 <label for="nombre_fantasia">Nombre de fantasía</label>
                 <input type="text" id="nombre_fantasia" name="nombre_fantasia" value="<?= e($datos['nombre_fantasia']) ?>">
+            </div>
+            <div class="campo">
+                <label for="imagen">Foto / logo del cliente</label>
+                <input type="file" id="imagen" name="imagen" accept="image/png,image/jpeg,image/webp">
             </div>
         </div>
         <div class="fila-form">

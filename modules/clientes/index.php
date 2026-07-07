@@ -23,15 +23,19 @@ $sql = "SELECT c.*, u.nombre AS resp_nombre, u.apellido AS resp_apellido
         WHERE 1=1";
 $params = [];
 
+if (restringidoASusClientes()) {
+    $sql .= " AND c.usuario_asignado = :uid";
+    $params[':uid'] = $_SESSION['usuario_id'];
+}
 if ($busqueda !== '') {
-    $sql .= " AND (c.razon_social LIKE :q OR c.mail LIKE :q OR c.cuit LIKE :q)";
+    $sql .= " AND (c.nombre LIKE :q OR c.razon_social LIKE :q OR c.mail LIKE :q OR c.cuit LIKE :q)";
     $params[':q'] = '%' . $busqueda . '%';
 }
 if ($estadoFiltro !== '' && in_array($estadoFiltro, ['prospecto', 'activo', 'inactivo'], true)) {
     $sql .= " AND c.estado = :estado";
     $params[':estado'] = $estadoFiltro;
 }
-$sql .= " ORDER BY c.razon_social";
+$sql .= " ORDER BY c.nombre";
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
@@ -53,7 +57,7 @@ include __DIR__ . '/../../includes/header.php';
     <?php endif; ?>
 
     <form method="get" style="display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
-        <input type="text" name="q" value="<?= e($busqueda) ?>" placeholder="Buscar por razón social, mail o CUIT..." style="max-width:320px;">
+        <input type="text" name="q" value="<?= e($busqueda) ?>" placeholder="Buscar por nombre, razón social, mail o CUIT..." style="max-width:320px;">
         <select name="estado" style="max-width:180px;">
             <option value="">Todos los estados</option>
             <option value="prospecto" <?= $estadoFiltro === 'prospecto' ? 'selected' : '' ?>>Prospecto</option>
@@ -66,7 +70,9 @@ include __DIR__ . '/../../includes/header.php';
     <table class="tabla-qerp">
         <thead>
             <tr>
-                <th>Razón social</th>
+                <th>Código</th>
+                <th></th>
+                <th>Nombre</th>
                 <th>Contacto</th>
                 <th>Estado</th>
                 <th>Responsable</th>
@@ -76,8 +82,16 @@ include __DIR__ . '/../../includes/header.php';
         <tbody>
             <?php foreach ($clientes as $c): ?>
             <tr>
+                <td style="color:var(--muted);">#<?= str_pad((string) $c['id'], 5, '0', STR_PAD_LEFT) ?></td>
                 <td>
-                    <a href="ver.php?id=<?= (int) $c['id'] ?>"><strong><?= e($c['razon_social']) ?></strong></a>
+                    <?php if ($c['imagen']): ?>
+                        <img src="<?= QERP_URL_BASE . e($c['imagen']) ?>" alt="" class="miniatura-cliente miniatura-cliente-sm">
+                    <?php else: ?>
+                        <span class="miniatura-cliente miniatura-cliente-sm miniatura-vacia"></span>
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <a href="ver.php?id=<?= (int) $c['id'] ?>"><strong><?= e($c['nombre']) ?></strong></a>
                     <?php if ($c['cuit']): ?><br><span style="color:var(--muted);font-size:12px;">CUIT <?= e($c['cuit']) ?></span><?php endif; ?>
                 </td>
                 <td>
@@ -102,7 +116,7 @@ include __DIR__ . '/../../includes/header.php';
             </tr>
             <?php endforeach; ?>
             <?php if (!$clientes): ?>
-                <tr><td colspan="5" style="color:var(--muted);">No se encontraron clientes.</td></tr>
+                <tr><td colspan="7" style="color:var(--muted);">No se encontraron clientes.</td></tr>
             <?php endif; ?>
         </tbody>
     </table>

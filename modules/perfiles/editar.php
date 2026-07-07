@@ -19,27 +19,31 @@ if (!$perfil) {
 
 $errores = [];
 $datos = [
-    'nombre'      => $perfil['nombre'],
-    'descripcion' => $perfil['descripcion'],
-    'activo'      => $perfil['activo'],
+    'nombre'               => $perfil['nombre'],
+    'descripcion'          => $perfil['descripcion'],
+    'activo'               => $perfil['activo'],
+    'solo_ve_sus_clientes' => $perfil['solo_ve_sus_clientes'],
 ];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $datos['nombre']      = trim($_POST['nombre'] ?? '');
-    $datos['descripcion'] = trim($_POST['descripcion'] ?? '');
-    $datos['activo']      = isset($_POST['activo']) ? 1 : 0;
+    $datos['nombre']               = trim($_POST['nombre'] ?? '');
+    $datos['descripcion']          = trim($_POST['descripcion'] ?? '');
+    $datos['activo']               = isset($_POST['activo']) ? 1 : 0;
+    $datos['solo_ve_sus_clientes'] = isset($_POST['solo_ve_sus_clientes']) ? 1 : 0;
 
     if ($datos['nombre'] === '') $errores[] = 'El nombre del perfil es obligatorio.';
 
     if (!$errores) {
         $stmt = $pdo->prepare(
-            'UPDATE qerp_perfiles SET nombre = :nombre, descripcion = :descripcion, activo = :activo WHERE id = :id'
+            'UPDATE qerp_perfiles SET nombre = :nombre, descripcion = :descripcion, activo = :activo,
+             solo_ve_sus_clientes = :solo_ve_sus_clientes WHERE id = :id'
         );
         $stmt->execute([
-            ':nombre'      => $datos['nombre'],
-            ':descripcion' => $datos['descripcion'],
-            ':activo'      => $datos['activo'],
-            ':id'          => $id,
+            ':nombre'               => $datos['nombre'],
+            ':descripcion'          => $datos['descripcion'],
+            ':activo'               => $datos['activo'],
+            ':solo_ve_sus_clientes' => $datos['solo_ve_sus_clientes'],
+            ':id'                   => $id,
         ]);
         $_SESSION['flash_ok'] = 'Perfil actualizado correctamente.';
         header('Location: index.php');
@@ -71,6 +75,15 @@ include __DIR__ . '/../../includes/header.php';
                 <input type="checkbox" name="activo" style="width:auto;" <?= $datos['activo'] ? 'checked' : '' ?>>
                 Perfil activo
             </label>
+        </div>
+        <div class="campo">
+            <label style="display:flex;align-items:center;gap:8px;font-weight:500;">
+                <input type="checkbox" name="solo_ve_sus_clientes" style="width:auto;" <?= $datos['solo_ve_sus_clientes'] ? 'checked' : '' ?>>
+                Solo ve sus clientes
+            </label>
+            <p style="color:var(--muted); font-size:12.5px; margin:4px 0 0;">
+                Si está activado, los usuarios con este perfil solo ven en Clientes y CRM los registros donde figuran como responsable.
+            </p>
         </div>
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button type="submit" class="btn btn-primary">Guardar cambios</button>
