@@ -17,6 +17,7 @@ $canales = [
 
 $motivos = $pdo->query('SELECT id, nombre FROM qerp_motivos_contacto WHERE activo = 1 ORDER BY nombre')->fetchAll();
 $resultados = $pdo->query('SELECT id, nombre FROM qerp_resultados_contacto WHERE activo = 1 ORDER BY nombre')->fetchAll();
+$productosDisponibles = $pdo->query('SELECT id, nombre FROM qerp_productos WHERE activo = 1 ORDER BY nombre')->fetchAll();
 
 $errores = [];
 $datos = [
@@ -114,6 +115,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$errores) {
         ]);
         $accionId = (int) $pdo->lastInsertId();
 
+        $productosIds = $_POST['producto_id'] ?? [];
+        $productosComentarios = $_POST['producto_comentario'] ?? [];
+        $productosValores = $_POST['producto_valor'] ?? [];
+        $insertarProducto = $pdo->prepare(
+            'INSERT INTO qerp_accion_productos (accion_id, producto_id, comentario, valor) VALUES (:accion_id, :producto_id, :comentario, :valor)'
+        );
+        foreach ($productosIds as $idx => $productoId) {
+            if ($productoId === '') continue;
+            $insertarProducto->execute([
+                ':accion_id'  => $accionId,
+                ':producto_id'=> (int) $productoId,
+                ':comentario' => trim($productosComentarios[$idx] ?? '') ?: null,
+                ':valor'      => ($productosValores[$idx] ?? '') !== '' ? (float) $productosValores[$idx] : null,
+            ]);
+        }
+
         procesarAdjuntosContacto($pdo, $_FILES['adjuntos'] ?? [], $accionId);
 
         $_SESSION['flash_ok'] = 'Contacto registrado correctamente.';
@@ -124,10 +141,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$errores) {
     }
 }
 
+$historicoInicial = [];
+if ($cliente) {
+    $stmt = $pdo->prepare(
+        "SELECT a.fecha, a.canal, u.nombre AS us_nombre, u.apellido AS us_apellido,
+                m.nombre AS motivo_nombre, r.nombre AS resultado_nombre
+         FROM qerp_acciones_contacto a
+         INNER JOIN qerp_usuarios u ON u.id = a.usuario_id
+         LEFT JOIN qerp_motivos_contacto m ON m.id = a.motivo_id
+         LEFT JOIN qerp_resultados_contacto r ON r.id = a.resultado_id
+         WHERE a.cliente_id = :id ORDER BY a.fecha DESC LIMIT 50"
+    );
+    $stmt->execute([':id' => $cliente['id']]);
+    $historicoInicial = $stmt->fetchAll();
+}
+
 include __DIR__ . '/../../includes/header.php';
 ?>
 
-<div class="card" style="max-width:680px;">
+<div class="card" style="max-width:820px;">
     <div class="card-header"><h3>Registrar contacto</h3></div>
 
     <?php foreach ($errores as $err): ?>
@@ -212,36 +244,112 @@ include __DIR__ . '/../../includes/header.php';
             </div>
         </div>
 
-        <div class="campo">
-            <label>Prioridad</label>
-            <div class="radio-pill-group">
-                <input type="radio" class="radio-pill" id="prioridad_alta" name="prioridad" value="alta" <?= $datos['prioridad'] === 'alta' ? 'checked' : '' ?>>
-                <label for="prioridad_alta" class="prioridad-alta">Alta</label>
-                <input type="radio" class="radio-pill" id="prioridad_media" name="prioridad" value="media" <?= $datos['prioridad'] === 'media' ? 'checked' : '' ?>>
-                <label for="prioridad_media" class="prioridad-media">Media</label>
-                <input type="radio" class="radio-pill" id="prioridad_baja" name="prioridad" value="baja" <?= $datos['prioridad'] === 'baja' ? 'checked' : '' ?>>
-                <label for="prioridad_baja" class="prioridad-baja">Baja</label>
+        <div class="fila-form">
+            <div class="campo">
+                <label>Prioridad</label>
+                <div class="radio-pill-group">
+                    <input type="radio" class="radio-pill" id="prioridad_alta" name="prioridad" value="alta" <?= $datos['prioridad'] === 'alta' ? 'checked' : '' ?>>
+                    <label for="prioridad_alta" class="prioridad-alta">Alta</label>
+                    <input type="radio" class="radio-pill" id="prioridad_media" name="prioridad" value="media" <?= $datos['prioridad'] === 'media' ? 'checked' : '' ?>>
+                    <label for="prioridad_media" class="prioridad-media">Media</label>
+                    <input type="radio" class="radio-pill" id="prioridad_baja" name="prioridad" value="baja" <?= $datos['prioridad'] === 'baja' ? 'checked' : '' ?>>
+                    <label for="prioridad_baja" class="prioridad-baja">Baja</label>
+                </div>
+            </div>
+            <div class="campo">
+                <label>Temperatura del prospecto</label>
+                <div class="radio-semaforo-group">
+                    <input type="radio" class="radio-semaforo" id="temp_frio" name="temperatura" value="frio" <?= $datos['temperatura'] === 'frio' ? 'checked' : '' ?>>
+                    <label for="temp_frio" class="semaforo-frio" title="Frío"></label>
+                    <input type="radio" class="radio-semaforo" id="temp_tibio" name="temperatura" value="tibio" <?= $datos['temperatura'] === 'tibio' ? 'checked' : '' ?>>
+                    <label for="temp_tibio" class="semaforo-tibio" title="Tibio"></label>
+                    <input type="radio" class="radio-semaforo" id="temp_caliente" name="temperatura" value="caliente" <?= $datos['temperatura'] === 'caliente' ? 'checked' : '' ?>>
+                    <label for="temp_caliente" class="semaforo-caliente" title="Caliente"></label>
+                </div>
             </div>
         </div>
 
-        <div class="campo">
-            <label>Temperatura del prospecto</label>
-            <div class="radio-semaforo-group">
-                <input type="radio" class="radio-semaforo" id="temp_frio" name="temperatura" value="frio" <?= $datos['temperatura'] === 'frio' ? 'checked' : '' ?>>
-                <label for="temp_frio" class="semaforo-frio" title="Frío"></label>
-                <input type="radio" class="radio-semaforo" id="temp_tibio" name="temperatura" value="tibio" <?= $datos['temperatura'] === 'tibio' ? 'checked' : '' ?>>
-                <label for="temp_tibio" class="semaforo-tibio" title="Tibio"></label>
-                <input type="radio" class="radio-semaforo" id="temp_caliente" name="temperatura" value="caliente" <?= $datos['temperatura'] === 'caliente' ? 'checked' : '' ?>>
-                <label for="temp_caliente" class="semaforo-caliente" title="Caliente"></label>
+        <div class="tabs">
+            <div class="tabs-nav">
+                <button type="button" class="tab-btn activo" data-tab="productos">Productos</button>
+                <button type="button" class="tab-btn" data-tab="historico">Histórico</button>
+                <button type="button" class="tab-btn" data-tab="adjuntos">Adjuntar archivo</button>
             </div>
-        </div>
 
-        <div class="campo">
-            <label>Adjuntar archivos</label>
-            <div class="dropzone">
-                <input type="file" name="adjuntos[]" multiple accept=".pdf,.jpg,.jpeg,.png,.webp">
-                <p style="margin:0;">Arrastrá archivos acá o hacé clic para elegirlos<br>(máximo 5, hasta 5MB cada uno — PDF, JPG, PNG o WEBP)</p>
-                <ul class="dropzone-lista"></ul>
+            <div class="tab-panel" data-tab-panel="productos">
+                <div class="tabla-responsive">
+                <table class="tabla-qerp tabla-productos-accion">
+                    <thead>
+                        <tr><th>Producto / Servicio</th><th>Comentario</th><th>Valor</th><th></th></tr>
+                    </thead>
+                    <tbody id="filasProductos">
+                        <tr>
+                            <td>
+                                <select name="producto_id[]">
+                                    <option value="">Elegir...</option>
+                                    <?php foreach ($productosDisponibles as $p): ?>
+                                        <option value="<?= (int) $p['id'] ?>"><?= e($p['nombre']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                            <td><input type="text" name="producto_comentario[]" placeholder="Comentario"></td>
+                            <td><input type="number" name="producto_valor[]" step="0.01" min="0" placeholder="0.00"></td>
+                            <td><button type="button" class="btn btn-outline btn-sm quitar-fila-producto">Quitar</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                </div>
+                <button type="button" class="btn btn-outline btn-sm" id="agregarProducto" style="margin-top:10px;">+ Agregar producto</button>
+                <template id="plantillaFilaProducto">
+                    <tr>
+                        <td>
+                            <select name="producto_id[]">
+                                <option value="">Elegir...</option>
+                                <?php foreach ($productosDisponibles as $p): ?>
+                                    <option value="<?= (int) $p['id'] ?>"><?= e($p['nombre']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
+                        <td><input type="text" name="producto_comentario[]" placeholder="Comentario"></td>
+                        <td><input type="number" name="producto_valor[]" step="0.01" min="0" placeholder="0.00"></td>
+                        <td><button type="button" class="btn btn-outline btn-sm quitar-fila-producto">Quitar</button></td>
+                    </tr>
+                </template>
+            </div>
+
+            <div class="tab-panel" data-tab-panel="historico" hidden>
+                <div id="historicoContenido" data-url="historico.php">
+                    <?php if (!$cliente): ?>
+                        <p style="color:var(--muted);">Elegí un cliente para ver su historial de contacto.</p>
+                    <?php elseif (!$historicoInicial): ?>
+                        <p style="color:var(--muted);">Todavía no hay acciones registradas para este cliente.</p>
+                    <?php else: ?>
+                        <div class="tabla-responsive">
+                        <table class="tabla-qerp">
+                            <thead><tr><th>Fecha</th><th>Canal</th><th>Motivo</th><th>Resultado</th><th>Vendedor</th></tr></thead>
+                            <tbody>
+                                <?php foreach ($historicoInicial as $h): ?>
+                                <tr>
+                                    <td><?= e(date('d/m/Y H:i', strtotime($h['fecha']))) ?></td>
+                                    <td><?= e($canales[$h['canal']] ?? $h['canal']) ?></td>
+                                    <td><?= e($h['motivo_nombre'] ?: '—') ?></td>
+                                    <td><?= e($h['resultado_nombre'] ?: '—') ?></td>
+                                    <td><?= e(trim($h['us_nombre'] . ' ' . $h['us_apellido'])) ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="tab-panel" data-tab-panel="adjuntos" hidden>
+                <div class="dropzone">
+                    <input type="file" name="adjuntos[]" multiple accept=".pdf,.jpg,.jpeg,.png,.webp">
+                    <p style="margin:0;">Arrastrá archivos acá o hacé clic para elegirlos<br>(máximo 5, hasta 5MB cada uno — PDF, JPG, PNG o WEBP)</p>
+                    <ul class="dropzone-lista"></ul>
+                </div>
             </div>
         </div>
 

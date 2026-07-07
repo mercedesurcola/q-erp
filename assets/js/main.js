@@ -23,15 +23,17 @@ document.querySelectorAll('.buscador-cliente').forEach(function (contenedor) {
         hidden.value = item.id;
         input.value = item.nombre;
         lista.hidden = true;
-        if (!tarjeta) return;
-        tarjeta.hidden = false;
-        tarjetaNombre.textContent = item.nombre;
-        if (item.imagen) {
-            tarjetaImg.src = item.imagen;
-            tarjetaImg.hidden = false;
-        } else {
-            tarjetaImg.hidden = true;
+        if (tarjeta) {
+            tarjeta.hidden = false;
+            tarjetaNombre.textContent = item.nombre;
+            if (item.imagen) {
+                tarjetaImg.src = item.imagen;
+                tarjetaImg.hidden = false;
+            } else {
+                tarjetaImg.hidden = true;
+            }
         }
+        document.dispatchEvent(new CustomEvent('cliente:seleccionado', { detail: item }));
     }
 
     input.addEventListener('input', function () {
@@ -178,6 +180,85 @@ document.querySelectorAll('.tabla-filtrable').forEach(function (tabla) {
     });
 
     if (overlay) overlay.addEventListener('click', cerrar);
+})();
+
+// ---------- Solapas (tabs) genéricas ----------
+document.querySelectorAll('.tabs').forEach(function (tabs) {
+    var botones = Array.from(tabs.querySelectorAll(':scope > .tabs-nav > .tab-btn'));
+    var paneles = Array.from(tabs.querySelectorAll(':scope > .tab-panel'));
+    botones.forEach(function (boton) {
+        boton.addEventListener('click', function () {
+            botones.forEach(function (b) { b.classList.remove('activo'); });
+            paneles.forEach(function (p) { p.hidden = true; });
+            boton.classList.add('activo');
+            var panel = tabs.querySelector(':scope > .tab-panel[data-tab-panel="' + boton.dataset.tab + '"]');
+            if (panel) panel.hidden = false;
+        });
+    });
+});
+
+// ---------- Filas dinámicas (ej. productos asociados a una actividad) ----------
+(function () {
+    var boton = document.getElementById('agregarProducto');
+    var plantilla = document.getElementById('plantillaFilaProducto');
+    var tbody = document.getElementById('filasProductos');
+    if (!boton || !plantilla || !tbody) return;
+
+    function activarQuitar(fila) {
+        var btnQuitar = fila.querySelector('.quitar-fila-producto');
+        if (btnQuitar) {
+            btnQuitar.addEventListener('click', function () { fila.remove(); });
+        }
+    }
+
+    tbody.querySelectorAll('tr').forEach(activarQuitar);
+
+    boton.addEventListener('click', function () {
+        var fragmento = plantilla.content.cloneNode(true);
+        var fila = fragmento.querySelector('tr');
+        tbody.appendChild(fragmento);
+        activarQuitar(tbody.lastElementChild);
+    });
+})();
+
+// ---------- Histórico de contacto del cliente elegido en el buscador ----------
+(function () {
+    var contenedor = document.getElementById('historicoContenido');
+    if (!contenedor) return;
+    var url = contenedor.dataset.url;
+
+    document.addEventListener('cliente:seleccionado', function (evento) {
+        contenedor.textContent = 'Cargando...';
+        fetch(url + '?cliente_id=' + encodeURIComponent(evento.detail.id))
+            .then(function (r) { return r.json(); })
+            .then(function (items) {
+                contenedor.innerHTML = '';
+                if (!items.length) {
+                    contenedor.textContent = 'Todavía no hay acciones registradas para este cliente.';
+                    return;
+                }
+                var envoltorio = document.createElement('div');
+                envoltorio.className = 'tabla-responsive';
+                var tabla = document.createElement('table');
+                tabla.className = 'tabla-qerp';
+                var thead = document.createElement('thead');
+                thead.innerHTML = '<tr><th>Fecha</th><th>Canal</th><th>Motivo</th><th>Resultado</th><th>Vendedor</th></tr>';
+                var tbody = document.createElement('tbody');
+                items.forEach(function (h) {
+                    var fila = document.createElement('tr');
+                    ['fecha', 'canal', 'motivo', 'resultado', 'vendedor'].forEach(function (campo) {
+                        var td = document.createElement('td');
+                        td.textContent = h[campo];
+                        fila.appendChild(td);
+                    });
+                    tbody.appendChild(fila);
+                });
+                tabla.appendChild(thead);
+                tabla.appendChild(tbody);
+                envoltorio.appendChild(tabla);
+                contenedor.appendChild(envoltorio);
+            });
+    });
 })();
 
 // ---------- Adjuntos: zona de arrastrar y soltar ----------

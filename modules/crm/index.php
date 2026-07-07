@@ -75,9 +75,10 @@ include __DIR__ . '/../../includes/header.php';
     <table class="tabla-qerp tabla-filtrable">
         <thead>
             <tr>
-                <th>Fecha del próximo contacto</th>
+                <th>Fecha</th>
                 <th>Hora</th>
                 <th>Prioridad</th>
+                <th>Vendedor</th>
                 <th>Cliente</th>
                 <th>Acción del próximo paso</th>
                 <th>Temperatura</th>
@@ -95,10 +96,13 @@ include __DIR__ . '/../../includes/header.php';
                         <span class="badge badge-<?= $a['prioridad'] === 'alta' ? 'inactivo' : ($a['prioridad'] === 'media' ? 'prospecto' : 'activo') ?>"><?= ucfirst(e($a['prioridad'])) ?></span>
                     <?php else: ?>—<?php endif; ?>
                 </td>
+                <td><?= e($a['us_nombre'] . ' ' . $a['us_apellido']) ?></td>
                 <td><a href="../clientes/ver.php?id=<?= (int) $a['cliente_id'] ?>"><?= e($a['cliente_nombre']) ?></a></td>
                 <td><?= e($a['accion_siguiente'] ?: '—') ?></td>
                 <td data-valor="<?= $a['temperatura'] ? $valorTemperatura[$a['temperatura']] : 0 ?>">
-                    <?= $a['temperatura'] ? e($etiquetasTemperatura[$a['temperatura']]) : '—' ?>
+                    <?php if ($a['temperatura']): ?>
+                        <span class="punto-temperatura <?= e($a['temperatura']) ?>" title="<?= e($etiquetasTemperatura[$a['temperatura']]) ?>"></span>
+                    <?php else: ?>—<?php endif; ?>
                 </td>
                 <td class="th-acciones" style="text-align:right;white-space:nowrap;">
                     <?php if ($puedeEditar): ?>
@@ -115,7 +119,7 @@ include __DIR__ . '/../../includes/header.php';
             </tr>
             <?php endforeach; ?>
             <?php if (!$acciones): ?>
-                <tr><td colspan="7" style="color:var(--muted);">No hay seguimientos pendientes.</td></tr>
+                <tr><td colspan="8" style="color:var(--muted);">No hay seguimientos pendientes.</td></tr>
             <?php endif; ?>
         </tbody>
     </table>
@@ -123,38 +127,30 @@ include __DIR__ . '/../../includes/header.php';
     <table class="tabla-qerp tabla-filtrable">
         <thead>
             <tr>
+                <th>Fecha</th>
+                <th>Vendedor</th>
+                <th>Prioridad</th>
                 <th>Cliente</th>
                 <th>Canal</th>
                 <th>Motivo</th>
                 <th>Resultado</th>
-                <th>Prioridad</th>
-                <th>Temp.</th>
-                <th>Fecha</th>
-                <th>Seguimiento</th>
-                <th>Registrado por</th>
                 <th class="th-acciones"></th>
             </tr>
         </thead>
         <tbody>
             <?php foreach ($acciones as $a): ?>
             <tr>
-                <td><a href="../clientes/ver.php?id=<?= (int) $a['cliente_id'] ?>"><?= e($a['cliente_nombre']) ?></a></td>
-                <td><?= e($etiquetasCanal[$a['canal']] ?? $a['canal']) ?></td>
-                <td><?= e($a['motivo_nombre'] ?: '—') ?></td>
-                <td><?= e($a['resultado_nombre'] ?: '—') ?></td>
+                <td data-valor="<?= strtotime($a['fecha']) ?>"><?= e(date('d/m/Y', strtotime($a['fecha']))) ?></td>
+                <td><?= e($a['us_nombre'] . ' ' . $a['us_apellido']) ?></td>
                 <td data-valor="<?= $a['prioridad'] ? $valorPrioridad[$a['prioridad']] : 0 ?>">
                     <?php if ($a['prioridad']): ?>
                         <span class="badge badge-<?= $a['prioridad'] === 'alta' ? 'inactivo' : ($a['prioridad'] === 'media' ? 'prospecto' : 'activo') ?>"><?= ucfirst(e($a['prioridad'])) ?></span>
                     <?php else: ?>—<?php endif; ?>
                 </td>
-                <td data-valor="<?= $a['temperatura'] ? $valorTemperatura[$a['temperatura']] : 0 ?>">
-                    <?= $a['temperatura'] ? e($etiquetasTemperatura[$a['temperatura']]) : '—' ?>
-                </td>
-                <td data-valor="<?= strtotime($a['fecha']) ?>"><?= e(date('d/m/Y H:i', strtotime($a['fecha']))) ?></td>
-                <td data-valor="<?= $a['proximo_seguimiento'] ? strtotime($a['proximo_seguimiento']) : 0 ?>">
-                    <?= $a['proximo_seguimiento'] ? e(date('d/m/Y H:i', strtotime($a['proximo_seguimiento']))) : '—' ?>
-                </td>
-                <td><?= e($a['us_nombre'] . ' ' . $a['us_apellido']) ?></td>
+                <td><a href="../clientes/ver.php?id=<?= (int) $a['cliente_id'] ?>"><?= e($a['cliente_nombre']) ?></a></td>
+                <td><?= e($etiquetasCanal[$a['canal']] ?? $a['canal']) ?></td>
+                <td><?= e($a['motivo_nombre'] ?: '—') ?></td>
+                <td><?= e($a['resultado_nombre'] ?: '—') ?></td>
                 <td class="th-acciones" style="text-align:right;white-space:nowrap;">
                     <?php if ($puedeEditar): ?>
                         <a href="editar.php?id=<?= (int) $a['id'] ?>" class="btn btn-outline btn-sm">Editar</a>
@@ -170,7 +166,7 @@ include __DIR__ . '/../../includes/header.php';
             </tr>
             <?php endforeach; ?>
             <?php if (!$acciones): ?>
-                <tr><td colspan="10" style="color:var(--muted);">Todavía no hay acciones registradas.</td></tr>
+                <tr><td colspan="8" style="color:var(--muted);">Todavía no hay acciones registradas.</td></tr>
             <?php endif; ?>
         </tbody>
     </table>
