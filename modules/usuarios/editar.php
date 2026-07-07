@@ -113,7 +113,10 @@ include __DIR__ . '/../../includes/header.php';
         </div>
         <div class="campo">
             <label for="password">Nueva contraseña</label>
-            <input type="password" id="password" name="password" minlength="6" placeholder="Dejar en blanco para no cambiarla">
+            <div class="input-password">
+                <input type="password" id="password" name="password" minlength="6" placeholder="Dejar en blanco para no cambiarla">
+                <?php include __DIR__ . '/../../includes/boton-ojo.php'; ?>
+            </div>
         </div>
         <div class="campo">
             <label for="perfil_id">Perfil</label>

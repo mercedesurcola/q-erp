@@ -18,7 +18,7 @@ $slugActual = $slugSeccionActual ?? '';
 ?>
 <aside class="qerp-sidebar" id="qerpSidebar">
     <div class="brand">
-        <span class="dot"></span> QERP
+        <img src="<?= QERP_URL_BASE ?>/assets/img/logo-cusol.png" alt="CUSOL" class="logo-sidebar">
     </div>
     <nav class="qerp-nav">
         <div class="seccion-titulo">CRM</div>

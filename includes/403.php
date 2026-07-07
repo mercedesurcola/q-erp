@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Sin permisos · QERP</title>
+    <title>Sin permisos · CUSOL</title>
     <link rel="stylesheet" href="<?= QERP_URL_BASE ?>/assets/css/style.css">
 </head>
 <body style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg);">

@@ -15,7 +15,7 @@ unset($_SESSION['login_error']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ingresar · QERP</title>
+    <title>Ingresar · CUSOL</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= QERP_URL_BASE ?>/assets/css/style.css">
@@ -23,7 +23,7 @@ unset($_SESSION['login_error']);
 <body>
     <div class="login-shell">
         <div class="login-card">
-            <div class="brand"><span style="color:var(--accent)">●</span> QERP</div>
+            <img src="<?= QERP_URL_BASE ?>/assets/img/logo-cusol.png" alt="CUSOL" class="logo-login">
             <div class="sub">Ingresá con tu cuenta para continuar</div>
 
             <?php if ($error): ?>
@@ -37,11 +37,15 @@ unset($_SESSION['login_error']);
                 </div>
                 <div class="campo">
                     <label for="password">Contraseña</label>
-                    <input type="password" id="password" name="password" required>
+                    <div class="input-password">
+                        <input type="password" id="password" name="password" required>
+                        <?php include __DIR__ . '/../includes/boton-ojo.php'; ?>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Ingresar</button>
             </form>
         </div>
     </div>
+    <script src="<?= QERP_URL_BASE ?>/assets/js/main.js"></script>
 </body>
 </html>

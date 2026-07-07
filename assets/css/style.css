@@ -1,23 +1,23 @@
 /* =========================================================
    QERP - Estilos base
-   Paleta: navy oscuro + gris neutro + acento teal
+   Paleta: alineada a la identidad de CUSOL (índigo + violeta + navy oscuro)
    Tipografía: Manrope (display) + Inter (texto/datos)
    ========================================================= */
 
 :root {
-  --bg: #F5F6F8;
+  --bg: #F5F5F8;
   --surface: #FFFFFF;
-  --ink: #171B26;
-  --muted: #6B7280;
-  --border: #E5E7EB;
+  --ink: #0E0F1C;
+  --muted: #6B6C80;
+  --border: #E2E2EA;
 
-  --navy: #101826;
-  --navy-light: #1B2436;
-  --navy-hover: #232E45;
+  --navy: #0C0D1A;
+  --navy-light: #1B1D2E;
+  --navy-hover: #262940;
 
-  --accent: #0F6E64;
-  --accent-light: #E4F2F0;
-  --accent-hover: #0C5A52;
+  --accent: #5B6EF5;
+  --accent-light: #ECEEFE;
+  --accent-hover: #3A4FD4;
 
   --danger: #DC2626;
   --danger-light: #FDECEC;
@@ -78,21 +78,17 @@ a:hover { text-decoration: underline; }
 .qerp-sidebar .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 20px;
-  font-family: 'Manrope', sans-serif;
-  font-weight: 800;
-  font-size: 18px;
-  color: #fff;
-  letter-spacing: 0.5px;
+  justify-content: center;
+  padding: 22px 20px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
-.qerp-sidebar .brand .dot {
-  width: 9px; height: 9px;
-  border-radius: 50%;
-  background: var(--accent);
-  display: inline-block;
+.logo-sidebar {
+  width: 140px;
+  height: auto;
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px 12px;
 }
 
 .qerp-nav {
@@ -291,6 +287,34 @@ input:focus, select:focus, textarea:focus {
   border-color: var(--accent);
 }
 
+.input-password { position: relative; }
+
+.input-password input { padding-right: 40px; }
+
+.toggle-password {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.toggle-password:hover { color: var(--ink); background: var(--bg); }
+
+.toggle-password .icono-ojo-off { display: none; }
+.toggle-password.mostrando .icono-ojo { display: none; }
+.toggle-password.mostrando .icono-ojo-off { display: block; }
+
 .campo { margin-bottom: 16px; }
 .fila-form { display: flex; gap: 16px; }
 .fila-form .campo { flex: 1; }
@@ -362,17 +386,19 @@ table.tabla-qerp {
   max-width: 380px;
 }
 
-.login-card .brand {
-  font-family: 'Manrope', sans-serif;
-  font-weight: 800;
-  font-size: 22px;
-  margin-bottom: 4px;
+.logo-login {
+  display: block;
+  width: 180px;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto 12px;
 }
 
 .login-card .sub {
   color: var(--muted);
   font-size: 13px;
   margin-bottom: 24px;
+  text-align: center;
 }
 
 @media (max-width: 768px) {
